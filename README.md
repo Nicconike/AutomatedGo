@@ -18,7 +18,7 @@ goautomate is a Go tool that automates the process of checking and updating Go v
 
 To install goautomate, use the following command:
 ```sh
-go get github.com/Nicconike/goautomate
+go get github.com/nicconike/goautomate
 ```
 
 ## Usage
@@ -40,12 +40,12 @@ This will check the specified file for the current Go version, compare it with t
 
 ### Examples
 
-1. Check version from a Dockerfile:
+1. Get version from a Dockerfile:
 	```sh
 	goautomate -file ./Dockerfile
 	```
 
-2. Check version from go.mod:
+2. Get version from go.mod:
 	```sh
 	goautomate -file ./go.mod
 	```
