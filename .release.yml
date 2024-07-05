@@ -8,10 +8,11 @@ github:
 plugins:
     - "@semantic-release/commit-analyzer"
     - "@semantic-release/release-notes-generator"
+    - - "@semantic-release/changelog"
+      - changelogFile: "CHANGELOG.md"
+        changelogTitle: "# CHANGELOG"
     - "@semantic-release/github"
-    - "@semantic-release/changelog"
-    - - "@semantic-release/exec"
-      - prepareCmd: "go mod tidy"
     - - "@semantic-release/git"
-      - assets: ["go.mod", "go.sum", "CHANGELOG.md"]
-        message: "chore(release): ${nextRelease.version} [skip ci]\n\n${nextRelease.notes}"
+      - assets:
+            - CHANGELOG.md
+        message: 'chore(release): ${nextRelease.version} [skip ci]\n\n${nextRelease.notes}'
