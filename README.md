@@ -1,7 +1,10 @@
 # GoAutomate
 
-![GitHub go.mod Go version](https://img.shields.io/github/go-mod/go-version/nicconike/go-ci?style=plastic)
+![GitHub go.mod Go version](https://img.shields.io/github/go-mod/go-version/nicconike/goautomate)
 ![GitHub Release](https://img.shields.io/github/v/release/nicconike/goautomate)
+[![Go Report Card](https://goreportcard.com/badge/github.com/Nicconike/goautomate)](https://goreportcard.com/report/github.com/Nicconike/goautomate)
+[![codecov](https://codecov.io/gh/Nicconike/goautomate/graph/badge.svg?token=MPIX1QLEYJ)](https://codecov.io/gh/Nicconike/goautomate)
+[![Go Reference](https://pkg.go.dev/badge/github.com/Nicconike/goautomate.svg)](https://pkg.go.dev/github.com/Nicconike/goautomate)
 ![GitHub License](https://img.shields.io/github/license/nicconike/goautomate)
 
 goautomate is a Go tool that automates the process of checking and updating Go versions in your projects. It can detect the current Go version from various file types, compare it with the latest available version, and download the newest version if an update is available.
@@ -18,7 +21,7 @@ goautomate is a Go tool that automates the process of checking and updating Go v
 
 To install goautomate, use the following command:
 ```sh
-go get github.com/nicconike/goautomate
+go get -u github.com/Nicconike/goautomate
 ```
 
 ## Usage

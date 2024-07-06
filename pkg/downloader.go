@@ -1,4 +1,4 @@
-package internal
+package pkg
 
 import (
 	"fmt"
@@ -12,8 +12,7 @@ import (
 	"github.com/schollz/progressbar/v3"
 )
 
-const DownloadURLFormat = "https://dl.google.com/go/go%s.%s-%s.%s"
-
+var DownloadURLFormat = "https://dl.google.com/go/go%s.%s-%s.%s"
 var validPlatforms = map[string][]string{
 	"windows": {"386", "amd64"},
 	"linux":   {"386", "amd64", "arm64", "armv6l"},

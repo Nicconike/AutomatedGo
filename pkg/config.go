@@ -1,4 +1,4 @@
-package internal
+package pkg
 
 import (
 	"bufio"
@@ -11,7 +11,7 @@ import (
 
 func GetCurrentVersion(filePath, directVersion string) (string, error) {
 	if filePath != "" {
-		return readVersionFromFile(filePath)
+		return ReadVersionFromFile(filePath)
 	}
 	if directVersion != "" {
 		return directVersion, nil
@@ -19,13 +19,13 @@ func GetCurrentVersion(filePath, directVersion string) (string, error) {
 	return "", errors.New("no version input provided")
 }
 
-func readVersionFromFile(filePath string) (string, error) {
+func ReadVersionFromFile(filePath string) (string, error) {
 	content, err := os.ReadFile(filePath)
 	if err != nil {
 		return "", err
 	}
 
-	version := extractGoVersion(string(content))
+	version := ExtractGoVersion(string(content))
 	if version != "" {
 		return version, nil
 	}
@@ -33,7 +33,7 @@ func readVersionFromFile(filePath string) (string, error) {
 	return "", errors.New("unable to extract Go version from file")
 }
 
-func extractGoVersion(content string) string {
+func ExtractGoVersion(content string) string {
 	// Common patterns for Go version
 	patterns := []string{
 		`(?i)go\s*version\s*[:=]?\s*["']?(\d+\.\d+(\.\d+)?)["']?`,

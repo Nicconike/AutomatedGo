@@ -6,7 +6,7 @@ import (
 	"log"
 	"os"
 
-	"github.com/Nicconike/goautomate/internal"
+	"github.com/Nicconike/goautomate/pkg"
 )
 
 func main() {
@@ -41,23 +41,23 @@ func main() {
 		*currentVersion = *versionShort
 	}
 
-	cv, err := internal.GetCurrentVersion(*versionFile, *currentVersion)
+	cv, err := pkg.GetCurrentVersion(*versionFile, *currentVersion)
 	if err != nil {
 		log.Fatalf("Error getting current version: %v", err)
 	}
 
 	log.Printf("Current version: %s", cv)
 
-	latestVersion, err := internal.GetLatestVersion()
+	latestVersion, err := pkg.GetLatestVersion()
 	if err != nil {
 		log.Fatalf("Error checking latest version: %v", err)
 	}
 
 	log.Printf("Latest version: %s", latestVersion)
 
-	if internal.IsNewer(latestVersion, cv) {
+	if pkg.IsNewer(latestVersion, cv) {
 		log.Println("A newer version is available. Downloading...")
-		err := internal.DownloadGo(latestVersion, *targetOS, *targetArch)
+		err := pkg.DownloadGo(latestVersion, *targetOS, *targetArch)
 		if err != nil {
 			log.Fatalf("Error downloading Go: %v", err)
 		}

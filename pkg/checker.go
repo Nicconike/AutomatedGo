@@ -1,4 +1,4 @@
-package internal
+package pkg
 
 import (
 	"io"
@@ -6,10 +6,10 @@ import (
 	"strings"
 )
 
-const versionURL = "https://go.dev/VERSION?m=text"
+var VersionURL = "https://go.dev/VERSION?m=text"
 
 func GetLatestVersion() (string, error) {
-	resp, err := http.Get(versionURL)
+	resp, err := http.Get(VersionURL)
 	if err != nil {
 		return "", err
 	}
