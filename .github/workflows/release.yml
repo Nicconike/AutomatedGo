@@ -37,15 +37,10 @@ jobs:
                 changelog-generator-opt: "emojis=true"
 
           - name: Publish to GitHub
-            if: steps.semrel.outputs.version != ''
             env:
                 GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
             run: |
+                VERSION=$(git describe --tags --abbrev=0)
                 echo "module github.com/Nicconike/goautomate" > go.mod
-                go list -m github.com/Nicconike/goautomate@${{ steps.semrel.outputs.version }}
-                GOPROXY=proxy.golang.org go list -m github.com/Nicconike/goautomate@${{ steps.semrel.outputs.version }}
-
-          - name: Index package on pkg.go.dev
-            if: steps.semrel.outputs.version != ''
-            run: |
-                GOPROXY=proxy.golang.org go list -m github.com/Nicconike/goautomate@${{ steps.semrel.outputs.version }}
+                go list -m github.com/Nicconike/goautomate@VERSION
+                GOPROXY=proxy.golang.org go list -m github.com/Nicconike/goautomate@$VERSION

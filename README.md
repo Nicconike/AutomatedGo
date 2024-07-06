@@ -39,8 +39,8 @@ This will check the specified file for the current Go version, compare it with t
 
 - `-file`: Path to the file containing the current Go version
 - `-version` or `-v`: Directly specify the current Go version
-- `-os`: Target operating system (windows, linux, darwin)
-- `-arch`: Target architecture (386, amd64, arm64, armv6l)
+- `-os`: Target operating system (windows, linux, macOS[darwin])
+- `-arch`: Target architecture (386[x86], amd64[x86-64], arm64, armv6l[armv6])
 
 ### Examples
 
@@ -74,6 +74,8 @@ goautomate can extract Go versions from various file types, including:
 - Plain text files with version information
 
 The tool uses various patterns to detect Go versions, making it flexible for different project setups.
+
+Missing any file types you expected to see? Let me know
 
 ## Contributing
 
