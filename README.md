@@ -1,5 +1,7 @@
 # GoAutomate
 
+[![Release](https://github.com/Nicconike/goautomate/actions/workflows/release.yml/badge.svg)](https://github.com/Nicconike/goautomate/actions/workflows/release.yml)
+[![Code Coverage](https://github.com/Nicconike/goautomate/actions/workflows/coverage.yml/badge.svg)](https://github.com/Nicconike/goautomate/actions/workflows/coverage.yml)
 ![GitHub go.mod Go version](https://img.shields.io/github/go-mod/go-version/nicconike/goautomate)
 ![GitHub Release](https://img.shields.io/github/v/release/nicconike/goautomate)
 [![Go Report Card](https://goreportcard.com/badge/github.com/Nicconike/goautomate)](https://goreportcard.com/report/github.com/Nicconike/goautomate)
