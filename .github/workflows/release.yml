@@ -42,5 +42,5 @@ jobs:
             run: |
                 VERSION=$(git describe --tags --abbrev=0)
                 echo "module github.com/Nicconike/goautomate" > go.mod
-                go list -m github.com/Nicconike/goautomate@VERSION
+                go list -m github.com/Nicconike/goautomate@$VERSION
                 GOPROXY=proxy.golang.org go list -m github.com/Nicconike/goautomate@$VERSION
