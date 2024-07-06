@@ -12,6 +12,7 @@ import (
 	"github.com/schollz/progressbar/v3"
 )
 
+var NewProgressBar = progressbar.NewOptions64
 var DownloadURLFormat = "https://dl.google.com/go/go%s.%s-%s.%s"
 var validPlatforms = map[string][]string{
 	"windows": {"386", "amd64"},

@@ -9,22 +9,43 @@ jobs:
     release:
         name: Release
         runs-on: ubuntu-latest
+        if: github.event_name == 'push' && github.ref == 'refs/heads/master'
         permissions:
             contents: write
+            packages: write
         steps:
           - name: Checkout Repo
             uses: actions/checkout@v4
             with:
                 fetch-depth: 0
+
           - name: Setup Go
             uses: actions/setup-go@v5
             with:
                 go-version: "1.22.x"
+
+          - name: Build
+            run: go build ./...
+
           - name: Run Semantic Release
             uses: go-semantic-release/action@v1
+            id: semrel
             with:
                 github-token: ${{ secrets.GITHUB_TOKEN }}
-          - name: Index package on pkg.go.dev
+                changelog-file: CHANGELOG.md
+                update-file: go.mod
+                changelog-generator-opt: "emojis=true"
+
+          - name: Publish to GitHub
+            if: steps.semrel.outputs.version != ''
+            env:
+                GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
             run: |
-                VERSION=$(git describe --tags --abbrev=0)
-                GOPROXY=proxy.golang.org go list -m github.com/Nicconike/goautomate@$VERSION
+                echo "module github.com/Nicconike/goautomate" > go.mod
+                go list -m github.com/Nicconike/goautomate@${{ steps.semrel.outputs.version }}
+                GOPROXY=proxy.golang.org go list -m github.com/Nicconike/goautomate@${{ steps.semrel.outputs.version }}
+
+          - name: Index package on pkg.go.dev
+            if: steps.semrel.outputs.version != ''
+            run: |
+                GOPROXY=proxy.golang.org go list -m github.com/Nicconike/goautomate@${{ steps.semrel.outputs.version }}
