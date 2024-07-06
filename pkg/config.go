@@ -36,13 +36,11 @@ func ReadVersionFromFile(filePath string) (string, error) {
 func ExtractGoVersion(content string) string {
 	// Common patterns for Go version
 	patterns := []string{
-		`(?i)go\s*version\s*[:=]?\s*["']?(\d+\.\d+(\.\d+)?)["']?`,
-		`(?i)go_version\s*[:=]?\s*["']?(\d+\.\d+(\.\d+)?)["']?`,
-		`(?i)golang_version\s*[:=]?\s*["']?(\d+\.\d+(\.\d+)?)["']?`,
-		`(?i)go(\d+\.\d+(\.\d+)?)`,
-		`(?i)FROM\s+golang:(\d+\.\d+(\.\d+)?)`,
-		`(?i)ARG\s+GO_VERSION=(\d+\.\d+(\.\d+)?)`,
-		`(?i)ENV\s+GO_VERSION=(\d+\.\d+(\.\d+)?)`,
+		`(?i)(?:go|golang|go_version|golang_version)(?:\s*version)?[:=]?\s*v?(\d+\.\d+(?:\.\d+)?)`,
+		`(?i)FROM\s+golang:(\d+\.\d+(?:\.\d+)?)`,
+		`(?i)ARG\s+GO_VERSION=(\d+\.\d+(?:\.\d+)?)`,
+		`(?i)ENV\s+GO_VERSION=(\d+\.\d+(?:\.\d+)?)`,
+		`(\d+\.\d+(?:\.\d+)?)`,
 	}
 
 	// Check for JSON format
@@ -67,9 +65,9 @@ func ExtractGoVersion(content string) string {
 	// Check for other formats using regex
 	for _, pattern := range patterns {
 		re := regexp.MustCompile(pattern)
-		matches := re.FindAllStringSubmatch(content, -1)
-		if len(matches) > 0 {
-			return matches[len(matches)-1][1]
+		matches := re.FindStringSubmatch(content)
+		if len(matches) > 1 {
+			return matches[1]
 		}
 	}
 
