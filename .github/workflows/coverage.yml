@@ -23,7 +23,7 @@ jobs:
 
           - name: Run tests with coverage
             run: |
-                go test -coverprofile=coverage.txt -covermode=atomic -coverpkg=./pkg/... ./tests/unit/checker_test.go ./tests/unit/config_test.go ./tests/unit/version_test.go
+                go test -coverprofile=coverage.txt -covermode=atomic -coverpkg=./pkg/... ./tests/unit/...
 
           - name: Upload coverage to Codecov
             uses: codecov/codecov-action@v4.0.1
