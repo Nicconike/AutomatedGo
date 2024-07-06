@@ -2,9 +2,9 @@
 
 [![Release](https://github.com/Nicconike/goautomate/actions/workflows/release.yml/badge.svg)](https://github.com/Nicconike/goautomate/actions/workflows/release.yml)
 [![Code Coverage](https://github.com/Nicconike/goautomate/actions/workflows/coverage.yml/badge.svg)](https://github.com/Nicconike/goautomate/actions/workflows/coverage.yml)
+[![Go Report Card](https://goreportcard.com/badge/github.com/Nicconike/goautomate)](https://goreportcard.com/report/github.com/Nicconike/goautomate)
 ![GitHub go.mod Go version](https://img.shields.io/github/go-mod/go-version/nicconike/goautomate)
 ![GitHub Release](https://img.shields.io/github/v/release/nicconike/goautomate)
-[![Go Report Card](https://goreportcard.com/badge/github.com/Nicconike/goautomate)](https://goreportcard.com/report/github.com/Nicconike/goautomate)
 [![codecov](https://codecov.io/gh/Nicconike/goautomate/graph/badge.svg?token=MPIX1QLEYJ)](https://codecov.io/gh/Nicconike/goautomate)
 [![Go Reference](https://pkg.go.dev/badge/github.com/Nicconike/goautomate.svg)](https://pkg.go.dev/github.com/Nicconike/goautomate)
 ![GitHub License](https://img.shields.io/github/license/nicconike/goautomate)
@@ -17,7 +17,6 @@ goautomate is a Go tool that automates the process of checking and updating Go v
 - Check for the latest available Go version
 - Download the latest Go version if an update is available
 - Support for different operating systems and architectures
-- Progress bar display during download
 
 ## Installation
 

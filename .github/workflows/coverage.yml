@@ -23,14 +23,13 @@ jobs:
 
           - name: Run tests with coverage
             run: |
-                cd tests/unit
-                go test -v -race -coverprofile=coverage.txt -covermode=atomic checker_test.go config_test.go version_test.go
+                go test -coverprofile=coverage.txt -covermode=atomic -coverpkg=./pkg/... ./tests/unit/checker_test.go ./tests/unit/config_test.go ./tests/unit/version_test.go
 
           - name: Upload coverage to Codecov
             uses: codecov/codecov-action@v4.0.1
             with:
                 token: ${{ secrets.CODECOV_TOKEN }}
-                files: ./tests/unit/coverage.txt
+                files: ./coverage.txt
                 flags: unittests
                 name: codecov-umbrella
                 fail_ci_if_error: true
