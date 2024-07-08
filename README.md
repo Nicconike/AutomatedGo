@@ -22,7 +22,7 @@ goautomate is a Go tool that automates the process of checking and updating Go v
 
 To install goautomate, use the following command:
 ```sh
-go get -u github.com/Nicconike/goautomate
+go get github.com/Nicconike/goautomate
 ```
 
 ## Usage

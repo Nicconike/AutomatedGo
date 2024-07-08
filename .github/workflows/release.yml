@@ -14,10 +14,18 @@ jobs:
             contents: write
             packages: write
         steps:
+          - name: GitHub App Token
+            uses: actions/create-github-app-token@v1
+            id: app-token
+            with:
+                app-id: ${{ secrets.APP_ID }}
+                private-key: ${{ secrets.APP_PRIVATE_KEY }}
+
           - name: Checkout Repo
             uses: actions/checkout@v4
             with:
                 fetch-depth: 0
+                token: ${{ steps.app-token.outputs.token }}
 
           - name: Setup Go
             uses: actions/setup-go@v5
@@ -31,16 +39,15 @@ jobs:
             uses: go-semantic-release/action@v1
             id: semrel
             with:
-                github-token: ${{ secrets.GITHUB_TOKEN }}
+                github-token: ${{ steps.app-token.outputs.token }}
                 changelog-file: CHANGELOG.md
                 update-file: go.mod
                 changelog-generator-opt: "emojis=true"
 
           - name: Publish to GitHub
             env:
-                GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
             run: |
                 VERSION=$(git describe --tags --abbrev=0)
                 echo "module github.com/Nicconike/goautomate" > go.mod
-                go list -m github.com/Nicconike/goautomate@$VERSION
                 GOPROXY=proxy.golang.org go list -m github.com/Nicconike/goautomate@$VERSION
