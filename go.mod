@@ -1,6 +1,6 @@
 module github.com/Nicconike/goautomate
 
-go 1.22.4
+go 1.15
 
 require github.com/schollz/progressbar/v3 v3.14.4
 
