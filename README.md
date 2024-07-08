@@ -46,23 +46,27 @@ This will check the specified file for the current Go version, compare it with t
 
 1. Get version from a Dockerfile:
 	```sh
-	goautomate -file ./Dockerfile
+	goautomate -file Dockerfile
 	```
+	![Dockerfile Example](https://github.com/Nicconike/goautomate/blob/master/assets/dockerfile_example.png)
 
 2. Get version from go.mod:
 	```sh
-	goautomate -file ./go.mod
+	goautomate -file go.mod
 	```
+	![Go Mod Example](https://github.com/Nicconike/goautomate/blob/master/assets/gomod_example.png)
 
 3. Specify version directly:
 	```sh
 	goautomate -version 1.16.5
 	```
+	![Direct Example](https://github.com/Nicconike/goautomate/blob/master/assets/direct_example.png)
 
 4. Download for a specific OS and architecture:
 	```sh
-	goautomate -file ./go.mod -os linux -arch arm64
+	goautomate -file version.json -os linux -arch arm64
 	```
+	![JSON Example with OS](https://github.com/Nicconike/goautomate/blob/master/assets/json_example_os_arch.png)
 
 ## Supported File Types
 
@@ -75,7 +79,7 @@ goautomate can extract Go versions from various file types, including:
 
 The tool uses various patterns to detect Go versions, making it flexible for different project setups.
 
-Missing any file types you expected to see? Let me know
+Missing any file types you expected to see? Let me know through [discussions](https://github.com/Nicconike/goautomate/discussions).
 
 ## Contributing
 
