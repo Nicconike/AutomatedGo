@@ -41,16 +41,13 @@ jobs:
 
           - name: Run GoReleaser
             uses: goreleaser/goreleaser-action@v4
-            if: steps.semrel.outputs.version != ''
             with:
-                distribution: releaser
+                distribution: goreleaser
                 version: latest
                 args: release --clean
             env:
                 GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
-                GORELEASER_CURRENT_TAG: ${{ steps.semrel.outputs.version }}
 
           - name: Update pkg.go.dev
-            if: steps.semrel.outputs.version != ''
             run: |
                 go list -m github.com/Nicconike/goautomate@${{ steps.semrel.outputs.version }}
