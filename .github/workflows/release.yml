@@ -2,8 +2,6 @@ name: Release
 on:
     push:
         branches: master
-    pull_request:
-        branches: master
 
 jobs:
     release:
@@ -32,9 +30,6 @@ jobs:
             with:
                 go-version: "1.22.x"
 
-          - name: Build
-            run: go build ./...
-
           - name: Run Semantic Release
             uses: go-semantic-release/action@v1
             id: semrel
@@ -44,10 +39,18 @@ jobs:
                 update-file: go.mod
                 changelog-generator-opt: "emojis=true"
 
-          - name: Publish to GitHub
+          - name: Run GoReleaser
+            uses: goreleaser/goreleaser-action@v4
+            if: steps.semrel.outputs.version != ''
+            with:
+                distribution: releaser
+                version: latest
+                args: release --clean
             env:
                 GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
+                GORELEASER_CURRENT_TAG: ${{ steps.semrel.outputs.version }}
+
+          - name: Update pkg.go.dev
+            if: steps.semrel.outputs.version != ''
             run: |
-                VERSION=$(git describe --tags --abbrev=0)
-                echo "module github.com/Nicconike/goautomate" > go.mod
-                GOPROXY=proxy.golang.org go list -m github.com/Nicconike/goautomate@$VERSION
+                go list -m github.com/Nicconike/goautomate@${{ steps.semrel.outputs.version }}

@@ -70,7 +70,7 @@ This will check the specified file for the current Go version, compare it with t
 
 ## Supported File Types
 
-goautomate can extract Go versions from various file types, including:
+`goautomate` can extract Go versions from various file types, including:
 
 - Dockerfile
 - go.mod
@@ -79,7 +79,7 @@ goautomate can extract Go versions from various file types, including:
 
 The tool uses various patterns to detect Go versions, making it flexible for different project setups.
 
-Missing any file types you expected to see? Let me know through [discussions](https://github.com/Nicconike/goautomate/discussions).
+Missing any file types you expected to see? Let me know via [discussions](https://github.com/Nicconike/goautomate/discussions).
 
 ## Contributing
 
