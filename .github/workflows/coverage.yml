@@ -26,8 +26,7 @@ jobs:
                 go test -coverprofile=coverage.txt -covermode=atomic -coverpkg=./pkg/... ./tests/unit/...
 
           - name: Upload coverage to Codecov
-            if: github.actor != 'dependabot[bot]'
-            uses: codecov/codecov-action@v4.0.1
+            uses: codecov/codecov-action@v4.5.0
             with:
                 token: ${{ secrets.CODECOV_TOKEN }}
                 files: ./coverage.txt
