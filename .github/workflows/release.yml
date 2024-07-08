@@ -5,7 +5,7 @@ on:
 
 jobs:
     semantic-release:
-        name: Release
+        name: Semantic Release
         runs-on: ubuntu-latest
         if: github.event_name == 'push' && github.ref == 'refs/heads/master'
         permissions:
@@ -45,6 +45,7 @@ jobs:
         name: GoReleaser
         needs: semantic-release
         runs-on: ubuntu-latest
+        if: needs.semantic-release.outputs.new_release_published == 'true'
         permissions:
             contents: write
             packages: write
@@ -67,6 +68,7 @@ jobs:
                 args: release --clean
             env:
                 GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                GORELEASER_CURRENT_TAG: ${{ needs.semantic-release.outputs.new_release_version }}
 
           - name: Update pkg.go.dev
             run: |
