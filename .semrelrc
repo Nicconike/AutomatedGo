@@ -15,10 +15,6 @@
 				{
 					"path": "CHANGELOG.md",
 					"type": "changelog"
-				},
-				{
-					"path": "go.mod",
-					"type": "go-mod"
 				}
 			]
 		}

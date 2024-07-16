@@ -4,8 +4,8 @@ on:
         branches: master
 
 jobs:
-    semantic-release:
-        name: Semantic Release
+    release:
+        name: Release
         runs-on: ubuntu-latest
         if: github.event_name == 'push' && github.ref == 'refs/heads/master'
         permissions:
@@ -32,7 +32,6 @@ jobs:
 
           - name: Semantic Release
             uses: go-semantic-release/action@v1
-            id: semrel
             with:
                 github-token: ${{ steps.app-token.outputs.token }}
                 changelog-file: CHANGELOG.md
@@ -41,7 +40,6 @@ jobs:
 
           - name: Run GoReleaser
             uses: goreleaser/goreleaser-action@v6
-            if: steps.semrel.outputs.new_release_published == 'true'
             with:
                 distribution: goreleaser
                 version: '~> v2'
@@ -50,6 +48,6 @@ jobs:
                 GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
 
           - name: Update pkg.go.dev
-            if: steps.semrel.outputs.new_release_published == 'true'
             run: |
-                go list -m github.com/Nicconike/goautomate@${{ steps.semrel.outputs.new_release_version }}
+                VERSION=$(git describe --tags --abbrev=0)
+                go list -m github.com/Nicconike/goautomate@VERSION
