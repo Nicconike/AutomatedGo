@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"os"
+	"strings"
 	"testing"
 
 	"github.com/Nicconike/goautomate/pkg"
@@ -16,7 +17,7 @@ func TestGetOfficialChecksum(t *testing.T) {
 		serverFunc func(http.ResponseWriter, *http.Request)
 		filename   string
 		want       string
-		wantErr    bool
+		wantErr    string
 	}{
 		{
 			name: "Valid filename",
@@ -42,7 +43,33 @@ func TestGetOfficialChecksum(t *testing.T) {
 			},
 			filename: "go1.22.5.linux-amd64.tar.gz",
 			want:     "904b924d435eaea086515bc63235b192ea441bd8c9b198c507e85009e6e4c7f0",
-			wantErr:  false,
+			wantErr:  "",
+		},
+		{
+			name: "Valid filename",
+			serverFunc: func(w http.ResponseWriter, r *http.Request) {
+				releases := []pkg.GoRelease{
+					{
+						Version: "go1.22.5",
+						Files: []struct {
+							Filename string `json:"filename"`
+							OS       string `json:"os"`
+							Arch     string `json:"arch"`
+							Version  string `json:"version"`
+							SHA256   string `json:"sha256"`
+						}{
+							{
+								Filename: "go1.22.5.linux-amd64.tar.gz",
+								SHA256:   "904b924d435eaea086515bc63235b192ea441bd8c9b198c507e85009e6e4c7f0",
+							},
+						},
+					},
+				}
+				json.NewEncoder(w).Encode(releases)
+			},
+			filename: "go1.22.5.linux-amd64.tar.gz",
+			want:     "904b924d435eaea086515bc63235b192ea441bd8c9b198c507e85009e6e4c7f0",
+			wantErr:  "",
 		},
 		{
 			name: "Invalid filename",
@@ -68,16 +95,25 @@ func TestGetOfficialChecksum(t *testing.T) {
 			},
 			filename: "invalid.tar.gz",
 			want:     "",
-			wantErr:  true,
+			wantErr:  "checksum not found for invalid.tar.gz",
 		},
 		{
-			name: "HTTP error",
+			name: "HTTP GET error",
 			serverFunc: func(w http.ResponseWriter, r *http.Request) {
-				http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+				w.WriteHeader(http.StatusInternalServerError)
 			},
 			filename: "go1.22.5.linux-amd64.tar.gz",
 			want:     "",
-			wantErr:  true,
+			wantErr:  "failed to fetch Go releases: HTTP status 500",
+		},
+		{
+			name: "Read body error",
+			serverFunc: func(w http.ResponseWriter, r *http.Request) {
+				w.Header().Set("Content-Length", "1")
+			},
+			filename: "go1.22.5.linux-amd64.tar.gz",
+			want:     "",
+			wantErr:  "failed to read response body",
 		},
 		{
 			name: "Invalid JSON",
@@ -86,7 +122,7 @@ func TestGetOfficialChecksum(t *testing.T) {
 			},
 			filename: "go1.22.5.linux-amd64.tar.gz",
 			want:     "",
-			wantErr:  true,
+			wantErr:  "failed to parse JSON",
 		},
 	}
 
@@ -100,8 +136,17 @@ func TestGetOfficialChecksum(t *testing.T) {
 			defer func() { pkg.URL = originalURL }()
 
 			got, err := pkg.GetOfficialChecksum(tt.filename)
-			if (err != nil) != tt.wantErr {
-				t.Errorf("GetOfficialChecksum() error = %v, wantErr %v", err, tt.wantErr)
+			if tt.wantErr != "" {
+				if err == nil {
+					t.Errorf("GetOfficialChecksum() error = nil, wantErr %v", tt.wantErr)
+					return
+				}
+				if !strings.Contains(err.Error(), tt.wantErr) {
+					t.Errorf("GetOfficialChecksum() error = %v, wantErr %v", err, tt.wantErr)
+					return
+				}
+			} else if err != nil {
+				t.Errorf("GetOfficialChecksum() unexpected error = %v", err)
 				return
 			}
 			if got != tt.want {
@@ -161,14 +206,13 @@ func TestCalculateFileChecksum(t *testing.T) {
 		}
 	})
 
-	// Test with a file that becomes inaccessible after opening
+	// Test with a file that gets removed after opening
 	t.Run("File becomes inaccessible", func(t *testing.T) {
 		tmpfile, err := os.CreateTemp("", "example")
 		if err != nil {
 			t.Fatal(err)
 		}
 		tmpfile.Close()
-		// Remove the file instead of just changing permissions
 		os.Remove(tmpfile.Name())
 
 		_, err = pkg.CalculateFileChecksum(tmpfile.Name())

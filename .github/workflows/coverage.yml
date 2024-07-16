@@ -3,12 +3,17 @@ name: "Code Coverage"
 on:
     push:
         branches: master
+        paths:
+            - ".github/workflows/coverage.yml"
+            - "tests/*.py"
     pull_request:
         branches: master
 
 jobs:
     code-coverage:
+        name: Codecov
         runs-on: ubuntu-latest
+        if: github.actor != 'dependabot[bot]' || github.actor != 'github-actions[bot]' || github.actor != 'protected-auto-commits[bot]'
         steps:
           - name: Checkout Repo
             uses: actions/checkout@v4

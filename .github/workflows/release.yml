@@ -2,10 +2,15 @@ name: Release
 on:
     push:
         branches: master
+        paths:
+            - '.github/workflows/release.yml'
+            - 'go.mod'
+            - 'pkg/*'
+            - 'cmd/*'
 
 jobs:
-    release:
-        name: Release
+    semantic-release:
+        name: Semantic Release
         runs-on: ubuntu-latest
         if: github.event_name == 'push' && github.ref == 'refs/heads/master'
         permissions:
@@ -38,6 +43,37 @@ jobs:
                 update-file: go.mod
                 changelog-generator-opt: "emojis=true"
 
+          - name: Update pkg.go.dev # https://pkg.go.dev/github.com/Nicconike/goautomate
+            run: |
+                VERSION=$(git describe --tags --abbrev=0)
+                go list -m github.com/Nicconike/goautomate@VERSION
+
+    goreleaser:
+        name: GoReleaser
+        needs: semantic-release
+        runs-on: ubuntu-latest
+        permissions:
+            contents: write
+            packages: write
+        steps:
+          - name: GitHub App Token
+            uses: actions/create-github-app-token@v1
+            id: app-token
+            with:
+                app-id: ${{ secrets.APP_ID }}
+                private-key: ${{ secrets.APP_PRIVATE_KEY }}
+
+          - name: Checkout Repo
+            uses: actions/checkout@v4
+            with:
+                fetch-depth: 0
+                token: ${{ steps.app-token.outputs.token }}
+
+          - name: Set up Go
+            uses: actions/setup-go@v5
+            with:
+                go-version: "1.22.x"
+
           - name: Run GoReleaser
             uses: goreleaser/goreleaser-action@v6
             with:
@@ -46,8 +82,3 @@ jobs:
                 args: release --clean
             env:
                 GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
-
-          - name: Update pkg.go.dev
-            run: |
-                VERSION=$(git describe --tags --abbrev=0)
-                go list -m github.com/Nicconike/goautomate@VERSION
