@@ -1,9 +1,9 @@
 package pkg
 
 import (
+	"errors"
 	"fmt"
 	"io"
-	"log"
 	"net/http"
 	"os"
 	"runtime"
@@ -14,21 +14,63 @@ import (
 
 var NewProgressBar = progressbar.NewOptions64
 var DownloadURLFormat = "https://dl.google.com/go/go%s.%s-%s.%s"
+var DownloadFile = downloadFile
 var validPlatforms = map[string][]string{
 	"windows": {"386", "amd64"},
 	"linux":   {"386", "amd64", "arm64", "armv6l"},
 	"darwin":  {"amd64", "arm64"},
 }
 
-func DownloadGo(version, targetOS, arch string) error {
-	logger := log.New(os.Stdout, "DownloadGo: ", log.Lshortfile)
+func downloadFile(url, filename string) error {
+	resp, err := http.Get(url)
+	if err != nil {
+		return fmt.Errorf("error downloading: %w", err)
+	}
+	defer resp.Body.Close()
 
+	if resp.StatusCode != http.StatusOK {
+		return fmt.Errorf("unexpected status code: %d", resp.StatusCode)
+	}
+
+	out, err := os.Create(filename)
+	if err != nil {
+		return fmt.Errorf("error creating file: %w", err)
+	}
+	defer out.Close()
+
+	bar := NewProgressBar(
+		resp.ContentLength,
+		progressbar.OptionSetWidth(50),
+		progressbar.OptionSetDescription("Downloading:"),
+		progressbar.OptionShowBytes(true),
+		progressbar.OptionShowCount(),
+		progressbar.OptionSetTheme(progressbar.Theme{
+			Saucer:        "=",
+			SaucerHead:    ">",
+			SaucerPadding: " ",
+			BarStart:      "[",
+			BarEnd:        "]",
+		}),
+		progressbar.OptionOnCompletion(func() {
+			fmt.Printf("\nDownload Complete!")
+		}),
+	)
+
+	_, err = io.Copy(io.MultiWriter(out, bar), resp.Body)
+	if err != nil {
+		return fmt.Errorf("error saving file: %w", err)
+	}
+
+	return nil
+}
+
+func DownloadGo(version, targetOS, arch string) error {
 	version = strings.TrimPrefix(version, "go")
-	logger.Printf("Preparing to download Go version %s", version)
+	fmt.Printf("Preparing to download Go version %s\n", version)
 
 	if targetOS == "" {
 		targetOS = runtime.GOOS
-		logger.Printf("Target OS not specified, using current OS: %s", targetOS)
+		fmt.Printf("Target OS not specified, using current OS: %s\n", targetOS)
 	}
 
 	validArchs, ok := validPlatforms[targetOS]
@@ -43,7 +85,7 @@ func DownloadGo(version, targetOS, arch string) error {
 		case "linux":
 			arch = runtime.GOARCH
 		}
-		logger.Printf("Architecture not specified, using default: %s", arch)
+		fmt.Printf("Architecture not specified, using default: %s\n", arch)
 	}
 
 	valid := false
@@ -62,49 +104,40 @@ func DownloadGo(version, targetOS, arch string) error {
 		extension = "zip"
 	}
 
-	url := fmt.Sprintf(DownloadURLFormat, version, targetOS, arch, extension)
-	logger.Printf("Download URL: %s", url)
-
-	resp, err := http.Get(url)
-	if err != nil {
-		return fmt.Errorf("error downloading: %v", err)
-	}
-	defer resp.Body.Close()
-
-	if resp.StatusCode != http.StatusOK {
-		return fmt.Errorf("unexpected status code: %d", resp.StatusCode)
-	}
-
 	filename := fmt.Sprintf("go%s.%s-%s.%s", version, targetOS, arch, extension)
-	out, err := os.Create(filename)
+	fmt.Printf("Fetching Official Checksum for %s\n", filename)
+	officialChecksum, err := GetOfficialChecksum(filename)
 	if err != nil {
-		return fmt.Errorf("error creating file: %v", err)
-	}
-	defer out.Close()
-
-	bar := progressbar.NewOptions64(
-		resp.ContentLength,
-		progressbar.OptionSetWidth(50),
-		progressbar.OptionSetDescription("Downloading:"),
-		progressbar.OptionShowBytes(true),
-		progressbar.OptionShowCount(),
-		progressbar.OptionSetTheme(progressbar.Theme{
-			Saucer:        "=",
-			SaucerHead:    ">",
-			SaucerPadding: " ",
-			BarStart:      "[",
-			BarEnd:        "]",
-		}),
-		progressbar.OptionOnCompletion(func() {
-			fmt.Println("Download complete!")
-		}),
-	)
-
-	_, err = io.Copy(io.MultiWriter(out, bar), resp.Body)
-	if err != nil {
-		return fmt.Errorf("error saving file: %v", err)
+		fmt.Printf("Failed to get official checksum: %s\n", err)
+		return err
 	}
 
-	logger.Printf("Successfully downloaded Go %s for %s-%s to %s", version, targetOS, arch, filename)
+	url := fmt.Sprintf(DownloadURLFormat, version, targetOS, arch, extension)
+	err = DownloadFile(url, filename)
+	if err != nil {
+		fmt.Printf("Error downloading file: %s\n", err)
+		return err
+	}
+
+	fmt.Printf("\nCalculating checksum for %s\n", filename)
+	calculatedChecksum, err := CalculateFileChecksum(filename)
+	if err != nil {
+		if removeErr := os.Remove(filename); removeErr != nil {
+			fmt.Printf("Error removing file %s after failed checksum calculation: %s\n", filename, removeErr)
+		}
+		fmt.Printf("Failed to calculate checksum: %s\n", err)
+		return err
+	}
+
+	if calculatedChecksum != officialChecksum {
+		if removeErr := os.Remove(filename); removeErr != nil {
+			fmt.Printf("Error removing file %s after checksum mismatch: %s\n", filename, removeErr)
+		}
+		errMsg := fmt.Sprintf("Checksum mismatch: expected %s, got %s for file %s", officialChecksum, calculatedChecksum, filename)
+		fmt.Println(errMsg)
+		return errors.New(errMsg)
+	}
+
+	fmt.Println("Checksum verification successful!")
 	return nil
 }

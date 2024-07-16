@@ -26,14 +26,33 @@ archives:
             format: zip
 
 changelog:
-    disable: true
     sort: asc
-    filters:
-        exclude:
-            - "^docs:"
-            - "^test:"
+    groups:
+        - title: Features
+          regexp: "^.*feat[(\\w)]*:+.*$"
+          order: 0
+        - title: "Bug Fixes"
+          regexp: "^.*fix[(\\w)]*:+.*$"
+          order: 1
+        - title: Others
+          order: 999
 
 release:
     github:
         owner: Nicconike
         name: goautomate
+    prerelease: auto
+    draft: false
+    footer: |
+        ## How to install
+        ```
+        go install github.com/Nicconike/goautomate/cmd/goautomate@latest
+        ```
+
+        For more information, please refer to the [documentation](https://github.com/Nicconike/goautomate#readme).
+
+    extra_files:
+        - glob: ./CHANGELOG.md
+
+signs:
+    - artifacts: checksum

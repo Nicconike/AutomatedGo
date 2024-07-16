@@ -10,9 +10,7 @@ jobs:
         if: github.event_name == 'push' && github.ref == 'refs/heads/master'
         permissions:
             contents: write
-        outputs:
-            new_release_published: ${{ steps.semantic.outputs.new_release_published }}
-            new_release_version: ${{ steps.semantic.outputs.new_release_version }}
+            packages: write
         steps:
           - name: GitHub App Token
             uses: actions/create-github-app-token@v1
@@ -34,42 +32,24 @@ jobs:
 
           - name: Semantic Release
             uses: go-semantic-release/action@v1
-            id: semantic
+            id: semrel
             with:
                 github-token: ${{ steps.app-token.outputs.token }}
                 changelog-file: CHANGELOG.md
                 update-file: go.mod
                 changelog-generator-opt: "emojis=true"
 
-    goreleaser:
-        name: GoReleaser
-        needs: semantic-release
-        runs-on: ubuntu-latest
-        if: needs.semantic-release.outputs.new_release_published == 'true'
-        permissions:
-            contents: write
-            packages: write
-        steps:
-          - name: Checkout
-            uses: actions/checkout@v4
-            with:
-                fetch-depth: 0
-
-          - name: Set up Go
-            uses: actions/setup-go@v5
-            with:
-                go-version: "1.22.x"
-
           - name: Run GoReleaser
             uses: goreleaser/goreleaser-action@v6
+            if: steps.semrel.outputs.new_release_published == 'true'
             with:
                 distribution: goreleaser
                 version: '~> v2'
                 args: release --clean
             env:
-                GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-                GORELEASER_CURRENT_TAG: ${{ needs.semantic-release.outputs.new_release_version }}
+                GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
 
           - name: Update pkg.go.dev
+            if: steps.semrel.outputs.new_release_published == 'true'
             run: |
-                go list -m github.com/Nicconike/goautomate@${{ needs.semantic-release.outputs.new_release_version }}
+                go list -m github.com/Nicconike/goautomate@${{ steps.semrel.outputs.new_release_version }}

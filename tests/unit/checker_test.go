@@ -51,7 +51,6 @@ func TestGetLatestVersionHTTPError(t *testing.T) {
 func TestGetLatestVersionReadError(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Length", "1")
-		// Don't write anything to body, causing a read error
 	}))
 	defer server.Close()
 

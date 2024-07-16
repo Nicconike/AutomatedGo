@@ -17,7 +17,6 @@ func TestGetCurrentVersion(t *testing.T) {
 	}{
 		{"Direct version", "", "1.16.5", "1.16.5", false},
 		{"No input", "", "", "", true},
-		// Add more test cases as needed
 	}
 
 	for _, tt := range tests {
