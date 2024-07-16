@@ -8,6 +8,7 @@
 [![codecov](https://codecov.io/gh/Nicconike/goautomate/graph/badge.svg?token=MPIX1QLEYJ)](https://codecov.io/gh/Nicconike/goautomate)
 [![Go Reference](https://pkg.go.dev/badge/github.com/Nicconike/goautomate.svg)](https://pkg.go.dev/github.com/Nicconike/goautomate)
 ![GitHub License](https://img.shields.io/github/license/nicconike/goautomate)
+[![Visitor Badge](https://badges.pufler.dev/visits/nicconike/goautomate)](https://badges.pufler.dev)
 
 goautomate is a Go tool that automates the process of checking and updating Go versions in your projects. It can detect the current Go version from various file types, compare it with the latest available version, and download the newest version if an update is available.
 
@@ -16,6 +17,7 @@ goautomate is a Go tool that automates the process of checking and updating Go v
 - Detect current Go version from various file types (Dockerfile, go.mod, JSON configs, etc.)
 - Check for the latest available Go version
 - Download the latest Go version if an update is available
+- Checksum validation for downloaded Go versions to ensure integrity
 - Support for different operating systems and architectures
 
 ## Installation
@@ -79,11 +81,14 @@ This will check the specified file for the current Go version, compare it with t
 
 The tool uses various patterns to detect Go versions, making it flexible for different project setups.
 
-Missing any file types you expected to see? Let me know via [discussions](https://github.com/Nicconike/goautomate/discussions).
+Missing any file types you expected to see? Let me know via [discussions](https://github.com/Nicconike/goautomate/discussions) or [discord server](https://discord.gg/UbetHfu).
 
 ## Contributing
 
-Contributions to goautomate are welcome! Please feel free to submit a Pull Request.
+Star⭐ and Fork🍴 the Repo to start with your feature request(or bug) and experiment with the project to implement whatever Idea you might have and sent the Pull Request through 🤙
+
+Please refer [Contributing.md](https://github.com/Nicconike/Steam-Stats/blob/master/.github/CONTRIBUTING.md) to get to know how to contribute to this project.
+And thank you for considering to contribute.
 
 ## License
 

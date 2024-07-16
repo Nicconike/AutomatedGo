@@ -1,7 +1,7 @@
 package tests
 
 import (
-	"fmt"
+	"errors"
 	"io"
 	"net/http"
 	"net/http/httptest"
@@ -12,15 +12,6 @@ import (
 	"github.com/Nicconike/goautomate/pkg"
 	"github.com/schollz/progressbar/v3"
 )
-
-// Mock functions
-func mockGetOfficialChecksum(filename string) (string, error) {
-	return "mockedchecksum", nil
-}
-
-func mockCalculateFileChecksum(filename string) (string, error) {
-	return "mockedchecksum", nil
-}
 
 func TestDownloadFile(t *testing.T) {
 	// Create a test server
@@ -53,7 +44,7 @@ func TestDownloadFile(t *testing.T) {
 }
 
 func TestDownloadFileErrors(t *testing.T) {
-	// Test server error
+	// Test server error (existing test)
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusInternalServerError)
 	}))
@@ -64,10 +55,33 @@ func TestDownloadFileErrors(t *testing.T) {
 		t.Error("Expected an error for server error, got nil")
 	}
 
-	// Test invalid file path
+	// Test invalid file path (existing test)
 	err = pkg.DownloadFile("http://example.com", "/invalid/path/testfile")
 	if err == nil {
 		t.Error("Expected an error for invalid file path, got nil")
+	}
+
+	// Test http.Get error
+	err = pkg.DownloadFile("http://invalid-url", "testfile")
+	if err == nil {
+		t.Error("Expected an error for invalid URL, got nil")
+	}
+	if !strings.Contains(err.Error(), "error downloading:") {
+		t.Errorf("Expected error message to contain 'error downloading:', got: %v", err)
+	}
+
+	// Test io.Copy error
+	server = httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Length", "1")
+	}))
+	defer server.Close()
+
+	err = pkg.DownloadFile(server.URL, "testfile")
+	if err == nil {
+		t.Error("Expected an error for io.Copy failure, got nil")
+	}
+	if !strings.Contains(err.Error(), "error saving file:") {
+		t.Errorf("Expected error message to contain 'error saving file:', got: %v", err)
 	}
 }
 func TestDownloadGo(t *testing.T) {
@@ -78,31 +92,62 @@ func TestDownloadGo(t *testing.T) {
 	}
 	defer func() { pkg.NewProgressBar = oldNewProgressBar }()
 
-	// Mock GetOfficialChecksum and CalculateFileChecksum
+	// Variables to control mock behavior
+	var checksumMismatch bool
+	var getOfficialChecksumError bool
+	var calculateFileChecksumError bool
+	var downloadFileError bool
+	var removeFileError bool
+
+	// Mock GetOfficialChecksum
 	oldGetOfficialChecksum := pkg.GetOfficialChecksum
+	pkg.GetOfficialChecksum = func(filename string) (string, error) {
+		if getOfficialChecksumError {
+			return "", errors.New("mock official checksum error")
+		}
+		return "mockedchecksum", nil
+	}
+	defer func() { pkg.GetOfficialChecksum = oldGetOfficialChecksum }()
+
+	// Mock CalculateFileChecksum
 	oldCalculateFileChecksum := pkg.CalculateFileChecksum
-	pkg.GetOfficialChecksum = mockGetOfficialChecksum
-	pkg.CalculateFileChecksum = mockCalculateFileChecksum
-	defer func() {
-		pkg.GetOfficialChecksum = oldGetOfficialChecksum
-		pkg.CalculateFileChecksum = oldCalculateFileChecksum
-	}()
+	pkg.CalculateFileChecksum = func(filename string) (string, error) {
+		if calculateFileChecksumError {
+			return "", errors.New("mock calculate checksum error")
+		}
+		if checksumMismatch {
+			return "mismatchedchecksum", nil
+		}
+		return "mockedchecksum", nil
+	}
+	defer func() { pkg.CalculateFileChecksum = oldCalculateFileChecksum }()
 
 	// Mock DownloadFile
 	oldDownloadFile := pkg.DownloadFile
 	pkg.DownloadFile = func(url, filename string) error {
-		if strings.Contains(url, "500") {
-			return fmt.Errorf("error downloading: unexpected status code: 500")
+		if downloadFileError {
+			return errors.New("mock download file error")
 		}
 		return nil
 	}
 	defer func() { pkg.DownloadFile = oldDownloadFile }()
+
+	// Mock os.Remove
+	oldOsRemove := os.Remove
+	pkg.OsRemove = func(name string) error {
+		if removeFileError {
+			return errors.New("mock remove file error")
+		}
+		return nil
+	}
+	defer func() { pkg.OsRemove = oldOsRemove }()
 
 	tests := []struct {
 		name        string
 		version     string
 		targetOS    string
 		arch        string
+		setupMocks  func()
 		expectError bool
 		errorMsg    string
 	}{
@@ -111,6 +156,7 @@ func TestDownloadGo(t *testing.T) {
 			version:     "1.22.5",
 			targetOS:    "linux",
 			arch:        "amd64",
+			setupMocks:  func() {},
 			expectError: false,
 		},
 		{
@@ -118,6 +164,7 @@ func TestDownloadGo(t *testing.T) {
 			version:     "1.22.5",
 			targetOS:    "unsupported",
 			arch:        "amd64",
+			setupMocks:  func() {},
 			expectError: true,
 			errorMsg:    "unsupported operating system: unsupported",
 		},
@@ -126,29 +173,107 @@ func TestDownloadGo(t *testing.T) {
 			version:     "1.22.5",
 			targetOS:    "linux",
 			arch:        "unsupported",
+			setupMocks:  func() {},
 			expectError: true,
 			errorMsg:    "unsupported architecture unsupported for OS linux",
 		},
 		{
-			name:        "Server error",
+			name:     "Default OS",
+			version:  "1.22.5",
+			targetOS: "",
+			arch:     "amd64",
+			setupMocks: func() {
+				pkg.RuntimeGOOS = "darwin"
+			},
+			expectError: false,
+		},
+		{
+			name:     "Default architecture",
+			version:  "1.22.5",
+			targetOS: "linux",
+			arch:     "",
+			setupMocks: func() {
+				pkg.RuntimeGOARCH = "arm64"
+			},
+			expectError: false,
+		},
+		{
+			name:        "Windows zip",
 			version:     "1.22.5",
-			targetOS:    "linux",
+			targetOS:    "windows",
 			arch:        "amd64",
+			setupMocks:  func() {},
+			expectError: false,
+		},
+		{
+			name:     "GetOfficialChecksum error",
+			version:  "1.22.5",
+			targetOS: "linux",
+			arch:     "amd64",
+			setupMocks: func() {
+				getOfficialChecksumError = true
+			},
 			expectError: true,
-			errorMsg:    "error downloading: unexpected status code: 500",
+			errorMsg:    "mock official checksum error",
+		},
+		{
+			name:     "DownloadFile error",
+			version:  "1.22.5",
+			targetOS: "linux",
+			arch:     "amd64",
+			setupMocks: func() {
+				downloadFileError = true
+			},
+			expectError: true,
+			errorMsg:    "mock download file error",
+		},
+		{
+			name:     "CalculateFileChecksum error",
+			version:  "1.22.5",
+			targetOS: "linux",
+			arch:     "amd64",
+			setupMocks: func() {
+				calculateFileChecksumError = true
+			},
+			expectError: true,
+			errorMsg:    "mock calculate checksum error",
+		},
+		{
+			name:     "Checksum mismatch",
+			version:  "1.22.5",
+			targetOS: "linux",
+			arch:     "amd64",
+			setupMocks: func() {
+				checksumMismatch = true
+			},
+			expectError: true,
+			errorMsg:    "Checksum mismatch",
+		},
+		{
+			name:     "Remove file error after checksum mismatch",
+			version:  "1.22.5",
+			targetOS: "linux",
+			arch:     "amd64",
+			setupMocks: func() {
+				checksumMismatch = true
+				removeFileError = true
+			},
+			expectError: true,
+			errorMsg:    "Checksum mismatch",
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			// Override the download URL for testing
-			originalURL := pkg.DownloadURLFormat
-			if tt.name == "Server error" {
-				pkg.DownloadURLFormat = "https://example.com/500/go%s.%s-%s.%s"
-			} else {
-				pkg.DownloadURLFormat = "https://example.com/go%s.%s-%s.%s"
-			}
-			defer func() { pkg.DownloadURLFormat = originalURL }()
+			// Reset mock variables
+			checksumMismatch = false
+			getOfficialChecksumError = false
+			calculateFileChecksumError = false
+			downloadFileError = false
+			removeFileError = false
+
+			// Setup mocks for this test case
+			tt.setupMocks()
 
 			// Run the download function
 			err := pkg.DownloadGo(tt.version, tt.targetOS, tt.arch)

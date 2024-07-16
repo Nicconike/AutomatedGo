@@ -15,6 +15,9 @@ import (
 var NewProgressBar = progressbar.NewOptions64
 var DownloadURLFormat = "https://dl.google.com/go/go%s.%s-%s.%s"
 var DownloadFile = downloadFile
+var OsRemove = os.Remove
+var RuntimeGOOS = runtime.GOOS
+var RuntimeGOARCH = runtime.GOARCH
 var validPlatforms = map[string][]string{
 	"windows": {"386", "amd64"},
 	"linux":   {"386", "amd64", "arm64", "armv6l"},
@@ -122,7 +125,7 @@ func DownloadGo(version, targetOS, arch string) error {
 	fmt.Printf("\nCalculating checksum for %s\n", filename)
 	calculatedChecksum, err := CalculateFileChecksum(filename)
 	if err != nil {
-		if removeErr := os.Remove(filename); removeErr != nil {
+		if removeErr := OsRemove(filename); removeErr != nil {
 			fmt.Printf("Error removing file %s after failed checksum calculation: %s\n", filename, removeErr)
 		}
 		fmt.Printf("Failed to calculate checksum: %s\n", err)
@@ -130,7 +133,7 @@ func DownloadGo(version, targetOS, arch string) error {
 	}
 
 	if calculatedChecksum != officialChecksum {
-		if removeErr := os.Remove(filename); removeErr != nil {
+		if removeErr := OsRemove(filename); removeErr != nil {
 			fmt.Printf("Error removing file %s after checksum mismatch: %s\n", filename, removeErr)
 		}
 		errMsg := fmt.Sprintf("Checksum mismatch: expected %s, got %s for file %s", officialChecksum, calculatedChecksum, filename)
