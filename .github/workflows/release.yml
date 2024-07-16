@@ -46,7 +46,7 @@ jobs:
           - name: Update pkg.go.dev # https://pkg.go.dev/github.com/Nicconike/goautomate
             run: |
                 VERSION=$(git describe --tags --abbrev=0)
-                go list -m github.com/Nicconike/goautomate@VERSION
+                go list -m github.com/Nicconike/goautomate@$VERSION
 
     goreleaser:
         name: GoReleaser

@@ -37,7 +37,7 @@ This will check the specified file for the current Go version, compare it with t
 
 ### Command-line Options
 
-- `-file`: Path to the file containing the current Go version
+- `-file` or `-f`: Path to the file containing the current Go version
 - `-version` or `-v`: Directly specify the current Go version
 - `-os`: Target operating system (windows, linux, macOS[darwin])
 - `-arch`: Target architecture (386[x86], amd64[x86-64], arm64, armv6l[armv6])
