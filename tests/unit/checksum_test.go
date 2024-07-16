@@ -107,6 +107,15 @@ func TestGetOfficialChecksum(t *testing.T) {
 			wantErr:  "failed to fetch Go releases: HTTP status 500",
 		},
 		{
+			name: "HTTP GET request failure",
+			serverFunc: func(w http.ResponseWriter, r *http.Request) {
+				panic("forced connection error")
+			},
+			filename: "go1.22.5.linux-amd64.tar.gz",
+			want:     "",
+			wantErr:  "failed to fetch Go releases",
+		},
+		{
 			name: "Read body error",
 			serverFunc: func(w http.ResponseWriter, r *http.Request) {
 				w.Header().Set("Content-Length", "1")
@@ -128,7 +137,15 @@ func TestGetOfficialChecksum(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			server := httptest.NewServer(http.HandlerFunc(tt.serverFunc))
+			var server *httptest.Server
+			server = httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				defer func() {
+					if r := recover(); r != nil {
+						server.CloseClientConnections()
+					}
+				}()
+				tt.serverFunc(w, r)
+			}))
 			defer server.Close()
 
 			originalURL := pkg.URL

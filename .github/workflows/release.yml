@@ -16,6 +16,9 @@ jobs:
         permissions:
             contents: write
             packages: write
+        outputs:
+            new_release_published: ${{ steps.semantic.outputs.new_release_published }}
+            new_release_version: ${{ steps.semantic.outputs.new_release_version }}
         steps:
           - name: GitHub App Token
             uses: actions/create-github-app-token@v1
@@ -37,21 +40,23 @@ jobs:
 
           - name: Semantic Release
             uses: go-semantic-release/action@v1
+            id: semantic
             with:
                 github-token: ${{ steps.app-token.outputs.token }}
                 changelog-file: CHANGELOG.md
                 update-file: go.mod
                 changelog-generator-opt: "emojis=true"
 
-          - name: Update pkg.go.dev # https://pkg.go.dev/github.com/Nicconike/goautomate
+          - name: Update pkg.go.dev
+            if: steps.semantic.outputs.new_release_published == 'true'
             run: |
-                VERSION=$(git describe --tags --abbrev=0)
-                go list -m github.com/Nicconike/goautomate@$VERSION
+                go list -m github.com/Nicconike/goautomate@${{ steps.semantic.outputs.new_release_version }}
 
     goreleaser:
         name: GoReleaser
         needs: semantic-release
         runs-on: ubuntu-latest
+        if: needs.semantic-release.outputs.new_release_published == 'true'
         permissions:
             contents: write
             packages: write
@@ -69,6 +74,9 @@ jobs:
                 fetch-depth: 0
                 token: ${{ steps.app-token.outputs.token }}
 
+          - name: Fetch latest tags
+            run: git fetch --force --tags
+
           - name: Set up Go
             uses: actions/setup-go@v5
             with:
@@ -82,3 +90,4 @@ jobs:
                 args: release --clean
             env:
                 GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
+                GORELEASER_CURRENT_TAG: ${{ needs.semantic-release.outputs.new_release_version }}
