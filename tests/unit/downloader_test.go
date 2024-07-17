@@ -133,7 +133,7 @@ func TestDownloadGo(t *testing.T) {
 	defer func() { pkg.DownloadFile = oldDownloadFile }()
 
 	// Mock os.Remove
-	oldOsRemove := os.Remove
+	oldOsRemove := pkg.OsRemove
 	pkg.OsRemove = func(name string) error {
 		if removeFileError {
 			return errors.New("mock remove file error")
@@ -141,6 +141,14 @@ func TestDownloadGo(t *testing.T) {
 		return nil
 	}
 	defer func() { pkg.OsRemove = oldOsRemove }()
+
+	// Mock runtime.GOOS and runtime.GOARCH
+	oldRuntimeGOOS := pkg.RuntimeGOOS
+	oldRuntimeGOARCH := pkg.RuntimeGOARCH
+	defer func() {
+		pkg.RuntimeGOOS = oldRuntimeGOOS
+		pkg.RuntimeGOARCH = oldRuntimeGOARCH
+	}()
 
 	tests := []struct {
 		name        string
@@ -188,7 +196,7 @@ func TestDownloadGo(t *testing.T) {
 			expectError: false,
 		},
 		{
-			name:     "Default architecture",
+			name:     "Default architecture for Linux",
 			version:  "1.22.5",
 			targetOS: "linux",
 			arch:     "",
@@ -198,10 +206,18 @@ func TestDownloadGo(t *testing.T) {
 			expectError: false,
 		},
 		{
-			name:        "Windows zip",
+			name:        "Default architecture for Windows",
 			version:     "1.22.5",
 			targetOS:    "windows",
-			arch:        "amd64",
+			arch:        "",
+			setupMocks:  func() {},
+			expectError: false,
+		},
+		{
+			name:        "Default architecture for Darwin",
+			version:     "1.22.5",
+			targetOS:    "darwin",
+			arch:        "",
 			setupMocks:  func() {},
 			expectError: false,
 		},
@@ -261,6 +277,18 @@ func TestDownloadGo(t *testing.T) {
 			expectError: true,
 			errorMsg:    "Checksum mismatch",
 		},
+		{
+			name:     "Remove file error after checksum calculation error",
+			version:  "1.22.5",
+			targetOS: "linux",
+			arch:     "amd64",
+			setupMocks: func() {
+				calculateFileChecksumError = true
+				removeFileError = true
+			},
+			expectError: true,
+			errorMsg:    "mock calculate checksum error",
+		},
 	}
 
 	for _, tt := range tests {
@@ -271,6 +299,8 @@ func TestDownloadGo(t *testing.T) {
 			calculateFileChecksumError = false
 			downloadFileError = false
 			removeFileError = false
+			pkg.RuntimeGOOS = oldRuntimeGOOS
+			pkg.RuntimeGOARCH = oldRuntimeGOARCH
 
 			// Setup mocks for this test case
 			tt.setupMocks()
@@ -288,6 +318,13 @@ func TestDownloadGo(t *testing.T) {
 			if tt.expectError {
 				if err == nil || !strings.Contains(err.Error(), tt.errorMsg) {
 					t.Errorf("Expected error containing '%s', got: %v", tt.errorMsg, err)
+				}
+			}
+
+			// For cases where we expect file removal, check if OsRemove was called
+			if calculateFileChecksumError || checksumMismatch {
+				if !removeFileError && pkg.OsRemove == nil {
+					t.Errorf("Expected OsRemove to be called, but it wasn't")
 				}
 			}
 		})
