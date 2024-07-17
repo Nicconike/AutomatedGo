@@ -24,7 +24,7 @@ goautomate is a Go tool that automates the process of checking and updating Go v
 
 To install goautomate, use the following command:
 ```sh
-go install github.com/Nicconike/goautomate/cmd/goautomate@latest
+go get -u github.com/Nicconike/goautomate
 ```
 
 ## Usage
@@ -75,6 +75,8 @@ This will check the specified file for the current Go version, compare it with t
 	```
 	![JSON Example with OS](https://github.com/Nicconike/goautomate/blob/master/assets/json_example_os_arch.png)
 
+> Also, checkout a real example in the [test-goautomate](https://github.com/Nicconike/test-goautomate) repository where this tool is used to check and update the Go version. And then upload the downloaded Go version to Github using Git LFS.
+
 ## Supported File Types
 
 `goautomate` can extract Go versions from various file types, including:
@@ -92,7 +94,7 @@ Missing any file types you expected to see? Let me know via [discussions](https:
 
 Star⭐ and Fork🍴 the Repo to start with your feature request(or bug) and experiment with the project to implement whatever Idea you might have and sent the Pull Request through 🤙
 
-Please refer [Contributing.md](https://github.com/Nicconike/Steam-Stats/blob/master/.github/CONTRIBUTING.md) to get to know how to contribute to this project.
+Please refer [Contributing.md](https://github.com/Nicconike/goautomate/blob/master/.github/CONTRIBUTING.md) to get to know how to contribute to this project.
 And thank you for considering to contribute.
 
 ## License
