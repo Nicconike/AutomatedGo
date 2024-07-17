@@ -1,4 +1,4 @@
-# GoAutomate
+# GoAutomate🐿️
 
 [![Release](https://github.com/Nicconike/goautomate/actions/workflows/release.yml/badge.svg)](https://github.com/Nicconike/goautomate/actions/workflows/release.yml)
 [![Code Coverage](https://github.com/Nicconike/goautomate/actions/workflows/coverage.yml/badge.svg)](https://github.com/Nicconike/goautomate/actions/workflows/coverage.yml)
@@ -32,10 +32,15 @@ go install github.com/Nicconike/goautomate/cmd/goautomate@latest
 ### Basic Usage
 
 ```sh
-goautomate -file <path-to-file>
+goautomate -file <path-to-file> -os <target-os> -arch <target-arch>
 ```
 
 This will check the specified file for the current Go version, compare it with the latest available version, and download the new version if an update is available.
+
+> [!NOTE]
+> If you don't specify the `os` and `arch` type, the tool will download the latest version for your current operating system and architecture.
+>
+> Minimum required Go version: 1.15
 
 ### Command-line Options
 
@@ -48,25 +53,25 @@ This will check the specified file for the current Go version, compare it with t
 
 1. Get version from a Dockerfile:
 	```sh
-	goautomate -file Dockerfile
+	goautomate -f Dockerfile
 	```
 	![Dockerfile Example](https://github.com/Nicconike/goautomate/blob/master/assets/dockerfile_example.png)
 
 2. Get version from go.mod:
 	```sh
-	goautomate -file go.mod
+	goautomate -f go.mod
 	```
 	![Go Mod Example](https://github.com/Nicconike/goautomate/blob/master/assets/gomod_example.png)
 
 3. Specify version directly:
 	```sh
-	goautomate -version 1.16.5
+	goautomate -v 1.17
 	```
 	![Direct Example](https://github.com/Nicconike/goautomate/blob/master/assets/direct_example.png)
 
 4. Download for a specific OS and architecture:
 	```sh
-	goautomate -file version.json -os linux -arch arm64
+	goautomate -f version.json -os linux -arch arm64
 	```
 	![JSON Example with OS](https://github.com/Nicconike/goautomate/blob/master/assets/json_example_os_arch.png)
 
@@ -79,7 +84,7 @@ This will check the specified file for the current Go version, compare it with t
 - JSON configuration files
 - Plain text files with version information
 
-The tool uses various patterns to detect Go versions, making it flexible for different project setups.
+The tool uses various regex patterns to detect Go versions, making it flexible for different project setups.
 
 Missing any file types you expected to see? Let me know via [discussions](https://github.com/Nicconike/goautomate/discussions) or [discord server](https://discord.gg/UbetHfu).
 
