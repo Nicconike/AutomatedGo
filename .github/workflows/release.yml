@@ -6,7 +6,7 @@ on:
             - '.github/workflows/release.yml'
             - 'go.mod'
             - 'pkg/*'
-            - 'cmd/*'
+            - 'cmd/automatedgo/*'
 
 jobs:
     semantic-release:
