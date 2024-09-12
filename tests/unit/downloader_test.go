@@ -9,7 +9,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/Nicconike/goautomate/pkg"
+	"github.com/Nicconike/AutomatedGo/pkg"
 	"github.com/schollz/progressbar/v3"
 )
 

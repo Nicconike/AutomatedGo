@@ -12,7 +12,10 @@ jobs:
     semantic-release:
         name: Semantic Release
         runs-on: ubuntu-latest
-        if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+        if: |
+            github.actor != 'dependabot[bot]' &&
+            github.actor != 'github-actions[bot]' &&
+            github.actor != 'protected-auto-commits[bot]'
         permissions:
             contents: write
             packages: write
@@ -50,7 +53,7 @@ jobs:
           - name: Update pkg.go.dev
             if: steps.semantic.outputs.new_release_published == 'true'
             run: |
-                go list -m github.com/Nicconike/goautomate@${{ steps.semantic.outputs.new_release_version }}
+                go list -m github.com/Nicconike/AutomatedGo@${{ steps.semantic.outputs.new_release_version }}
 
     goreleaser:
         name: GoReleaser

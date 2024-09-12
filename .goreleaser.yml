@@ -1,5 +1,5 @@
 version: 2
-project_name: goautomate
+project_name: AutomatedGo
 
 builds:
     - env:
@@ -11,7 +11,7 @@ builds:
       goarch:
           - amd64
           - arm64
-      main: ./cmd/goautomate
+      main: ./cmd/AutomatedGo
 
 archives:
     - format: tar.gz
@@ -40,16 +40,16 @@ changelog:
 release:
     github:
         owner: Nicconike
-        name: goautomate
+        name: AutomatedGo
     prerelease: auto
     draft: false
     footer: |
         ## How to install
         ```
-        go get -u github.com/Nicconike/goautomate
+        go get -u github.com/Nicconike/AutomatedGo
         ```
 
-        For more information, please refer to the [documentation](https://github.com/Nicconike/goautomate#readme).
+        For more information, please refer to the [documentation](https://github.com/Nicconike/AutomatedGo#readme).
 
     extra_files:
         - glob: ./CHANGELOG.md

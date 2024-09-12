@@ -1,16 +1,16 @@
-# GoAutomate🐿️
+# AutomatedGo🐿️
 
-[![Release](https://github.com/Nicconike/goautomate/actions/workflows/release.yml/badge.svg)](https://github.com/Nicconike/goautomate/actions/workflows/release.yml)
-[![Code Coverage](https://github.com/Nicconike/goautomate/actions/workflows/coverage.yml/badge.svg)](https://github.com/Nicconike/goautomate/actions/workflows/coverage.yml)
-[![Go Report Card](https://goreportcard.com/badge/github.com/Nicconike/goautomate)](https://goreportcard.com/report/github.com/Nicconike/goautomate)
-![GitHub go.mod Go version](https://img.shields.io/github/go-mod/go-version/nicconike/goautomate)
-![GitHub Release](https://img.shields.io/github/v/release/nicconike/goautomate)
-[![codecov](https://codecov.io/gh/Nicconike/goautomate/graph/badge.svg?token=MPIX1QLEYJ)](https://codecov.io/gh/Nicconike/goautomate)
-[![Go Reference](https://pkg.go.dev/badge/github.com/Nicconike/goautomate.svg)](https://pkg.go.dev/github.com/Nicconike/goautomate)
-![GitHub License](https://img.shields.io/github/license/nicconike/goautomate)
-[![Visitor Badge](https://badges.pufler.dev/visits/nicconike/goautomate)](https://badges.pufler.dev)
+[![Release](https://github.com/Nicconike/AutomatedGo/actions/workflows/release.yml/badge.svg)](https://github.com/Nicconike/AutomatedGo/actions/workflows/release.yml)
+[![Code Coverage](https://github.com/Nicconike/AutomatedGo/actions/workflows/coverage.yml/badge.svg)](https://github.com/Nicconike/AutomatedGo/actions/workflows/coverage.yml)
+[![Go Report Card](https://goreportcard.com/badge/github.com/Nicconike/AutomatedGo)](https://goreportcard.com/report/github.com/Nicconike/AutomatedGo)
+![GitHub go.mod Go version](https://img.shields.io/github/go-mod/go-version/nicconike/AutomatedGo)
+![GitHub Release](https://img.shields.io/github/v/release/nicconike/AutomatedGo)
+[![codecov](https://codecov.io/gh/Nicconike/AutomatedGo/graph/badge.svg?token=MPIX1QLEYJ)](https://codecov.io/gh/Nicconike/AutomatedGo)
+[![Go Reference](https://pkg.go.dev/badge/github.com/Nicconike/AutomatedGo.svg)](https://pkg.go.dev/github.com/Nicconike/AutomatedGo)
+![GitHub License](https://img.shields.io/github/license/nicconike/AutomatedGo)
+[![Visitor Badge](https://badges.pufler.dev/visits/nicconike/AutomatedGo)](https://badges.pufler.dev)
 
-goautomate is a Go tool that automates the process of checking and updating Go versions in your projects. It can detect the current Go version from various file types, compare it with the latest available version, and download the newest version if an update is available.
+AutomatedGo is a Go tool that automates the process of checking and updating Go versions in your projects. It can detect the current Go version from various file types, compare it with the latest available version, and download the newest version if an update is available.
 
 ## Features
 
@@ -22,9 +22,9 @@ goautomate is a Go tool that automates the process of checking and updating Go v
 
 ## Installation
 
-To install goautomate, use the following command:
+To install **AutomatedGo**, use the following command:
 ```sh
-go get -u github.com/Nicconike/goautomate
+go get -u github.com/Nicconike/AutomatedGo
 ```
 
 ## Usage
@@ -32,7 +32,7 @@ go get -u github.com/Nicconike/goautomate
 ### Basic Usage
 
 ```sh
-goautomate -file <path-to-file> -os <target-os> -arch <target-arch>
+AutomatedGo -file <path-to-file> -os <target-os> -arch <target-arch>
 ```
 
 This will check the specified file for the current Go version, compare it with the latest available version, and download the new version if an update is available.
@@ -53,33 +53,33 @@ This will check the specified file for the current Go version, compare it with t
 
 1. Get version from a Dockerfile:
 	```sh
-	goautomate -f Dockerfile
+	AutomatedGo -f Dockerfile
 	```
-	![Dockerfile Example](https://github.com/Nicconike/goautomate/blob/master/assets/dockerfile_example.png)
+	![Dockerfile Example](https://github.com/Nicconike/AutomatedGo/blob/master/assets/dockerfile_example.png)
 
 2. Get version from go.mod:
 	```sh
-	goautomate -f go.mod
+	AutomatedGo -f go.mod
 	```
-	![Go Mod Example](https://github.com/Nicconike/goautomate/blob/master/assets/gomod_example.png)
+	![Go Mod Example](https://github.com/Nicconike/AutomatedGo/blob/master/assets/gomod_example.png)
 
 3. Specify version directly:
 	```sh
-	goautomate -v 1.17
+	AutomatedGo -v 1.17
 	```
-	![Direct Example](https://github.com/Nicconike/goautomate/blob/master/assets/direct_example.png)
+	![Direct Example](https://github.com/Nicconike/AutomatedGo/blob/master/assets/direct_example.png)
 
 4. Download for a specific OS and architecture:
 	```sh
-	goautomate -f version.json -os linux -arch arm64
+	AutomatedGo -f version.json -os linux -arch arm64
 	```
-	![JSON Example with OS](https://github.com/Nicconike/goautomate/blob/master/assets/json_example_os_arch.png)
+	![JSON Example with OS](https://github.com/Nicconike/AutomatedGo/blob/master/assets/json_example_os_arch.png)
 
-> Also, checkout a real example in the [test-goautomate](https://github.com/Nicconike/test-goautomate) repository where this tool is used to check and update the Go version. And then upload the downloaded Go version to Github using Git LFS.
+> Also, checkout a real example in the [test-AutomatedGo](https://github.com/Nicconike/test-AutomatedGo) repository where this tool is used to check and update the Go version. And then upload the downloaded Go version to Github using Git LFS.
 
 ## Supported File Types
 
-`goautomate` can extract Go versions from various file types, including:
+`AutomatedGo` can extract Go versions from various file types, including:
 
 - Dockerfile
 - go.mod
@@ -88,13 +88,13 @@ This will check the specified file for the current Go version, compare it with t
 
 The tool uses various regex patterns to detect Go versions, making it flexible for different project setups.
 
-Missing any file types you expected to see? Let me know via [discussions](https://github.com/Nicconike/goautomate/discussions) or [discord server](https://discord.gg/UbetHfu).
+Missing any file types you expected to see? Let me know via [discussions](https://github.com/Nicconike/AutomatedGo/discussions) or [discord server](https://discord.gg/UbetHfu).
 
 ## Contributing
 
 Star⭐ and Fork🍴 the Repo to start with your feature request(or bug) and experiment with the project to implement whatever Idea you might have and sent the Pull Request through 🤙
 
-Please refer [Contributing.md](https://github.com/Nicconike/goautomate/blob/master/.github/CONTRIBUTING.md) to get to know how to contribute to this project.
+Please refer [Contributing.md](https://github.com/Nicconike/AutomatedGo/blob/master/.github/CONTRIBUTING.md) to get to know how to contribute to this project.
 And thank you for considering to contribute.
 
 ## License

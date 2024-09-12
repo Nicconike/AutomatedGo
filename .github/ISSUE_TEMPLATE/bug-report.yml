@@ -1,5 +1,5 @@
 name: Bug Report
-description: Report a bug to help me improve goautomate
+description: Report a bug to help me improve AutomatedGo
 title: "Bug:"
 labels: ["bug"]
 assignees: "nicconike"

@@ -5,7 +5,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/Nicconike/goautomate/pkg"
+	"github.com/Nicconike/AutomatedGo/pkg"
 )
 
 var originalURL string

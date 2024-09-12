@@ -1,4 +1,4 @@
-module github.com/Nicconike/goautomate
+module github.com/Nicconike/AutomatedGo
 
 go 1.15
 

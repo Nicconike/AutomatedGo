@@ -4,7 +4,7 @@ import (
 	"os"
 	"testing"
 
-	"github.com/Nicconike/goautomate/pkg"
+	"github.com/Nicconike/AutomatedGo/pkg"
 )
 
 func TestGetCurrentVersion(t *testing.T) {

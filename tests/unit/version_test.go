@@ -3,7 +3,7 @@ package tests
 import (
 	"testing"
 
-	"github.com/Nicconike/goautomate/pkg"
+	"github.com/Nicconike/AutomatedGo/pkg"
 )
 
 func TestIsNewer(t *testing.T) {

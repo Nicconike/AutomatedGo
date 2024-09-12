@@ -1,5 +1,5 @@
 /*
-Package goautomate provides tools for automating Go version checks and downloads.
+Package AutomatedGo provides tools for automating Go version checks and downloads.
 
 Features:
 
@@ -92,6 +92,6 @@ Functions:
     Calculates the SHA256 checksum of the specified file.
 
 For more detailed information and advanced usage, refer to the README.md file
-and the package documentation at https://pkg.go.dev/github.com/Nicconike/goautomate.
+and the package documentation at https://pkg.go.dev/github.com/Nicconike/AutomatedGo.
 */
-package goautomate
+package AutomatedGo

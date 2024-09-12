@@ -8,7 +8,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/Nicconike/goautomate/pkg"
+	"github.com/Nicconike/AutomatedGo/pkg"
 )
 
 func TestGetOfficialChecksum(t *testing.T) {

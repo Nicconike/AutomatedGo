@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/Nicconike/goautomate/pkg"
+	"github.com/Nicconike/AutomatedGo/pkg"
 )
 
 func main() {

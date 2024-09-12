@@ -1,15 +1,15 @@
 # Contributing
 
-✨ Thanks for contributing to **GoAutomate**! ✨
+✨ Thanks for contributing to **AutomatedGo**! ✨
 
-[fork]: https://github.com/nicconike/goautomate/fork
-[pr]: https://github.com/nicconike/goautomate/compare
+[fork]: https://github.com/nicconike/automatedgo/fork
+[pr]: https://github.com/nicconike/automatedgo/compare
 [code-of-conduct]: CODE_OF_CONDUCT.md
 
 As a contributor, here are the guidelines I would like you to follow:
 
 - [Contributing](#contributing)
-	- [Contributing to GoAutomate](#contributing-to-goautomate)
+	- [Contributing to AutomatedGo](#contributing-to-automatedgo)
 	- [Code of conduct](#code-of-conduct)
 	- [How can I contribute?](#how-can-i-contribute)
 		- [Improve documentation](#improve-documentation)
@@ -30,7 +30,7 @@ As a contributor, here are the guidelines I would like you to follow:
 				- [Other Lint Tools](#other-lint-tools)
 	- [Resources](#resources)
 
-## Contributing to GoAutomate
+## Contributing to AutomatedGo
 
 Contributions to this project are [released](https://help.github.com/articles/github-terms-of-service/#6-contributions-under-repository-license) to the public under the [project's open source license](LICENSE).
 
@@ -38,13 +38,13 @@ Please note that this project is released with a [Contributor Code of Conduct][c
 
 ## Code of conduct
 
-Help me keep **goautomate** open and inclusive. Please read and follow the [Code of conduct](CODE_OF_CONDUCT.md).
+Help me keep **AutomatedGo** open and inclusive. Please read and follow the [Code of conduct](CODE_OF_CONDUCT.md).
 
 ## How can I contribute?
 
 ### Improve documentation
 
-As a **GoAutomate** user, you are the perfect candidate to help me improve the documentation: typo corrections, clarifications, more examples, etc. Take a look at the [documentation issues that need help](https://github.com/Nicconike/goautomate/issues/new?assignees=nicconike&labels=documentation&projects=&template=documentation.yml&title=%5BDOC%5D+).
+As a **AutomatedGo** user, you are the perfect candidate to help me improve the documentation: typo corrections, clarifications, more examples, etc. Take a look at the [documentation issues that need help](https://github.com/Nicconike/automatedgo/issues/new?assignees=nicconike&labels=documentation&projects=&template=documentation.yml&title=%5BDOC%5D+).
 
 Please follow the [Documentation guidelines](#documentation).
 
@@ -53,30 +53,30 @@ Please follow the [Documentation guidelines](#documentation).
 Some issues are created without the information requested in the [Bug report guideline](#bug-report).
 Help make them easier to resolve by adding any relevant information.
 
-Issues with the [enhancement label](https://github.com/Nicconike/goautomate/labels/enhancement) are meant to discuss the implementation of new features.
-Participating in the discussion is a good opportunity to get involved and influence the future direction of **GoAutomate**.
+Issues with the [enhancement label](https://github.com/Nicconike/automatedgo/labels/enhancement) are meant to discuss the implementation of new features.
+Participating in the discussion is a good opportunity to get involved and influence the future direction of **AutomatedGo**.
 
 ### Fix bugs and implement features
 
-Confirmed bugs and ready-to-implement features can be marked with the [help wanted label](https://github.com/Nicconike/goautomate/labels/help%20wanted).
+Confirmed bugs and ready-to-implement features can be marked with the [help wanted label](https://github.com/Nicconike/automatedgo/labels/help%20wanted).
 Post a comment on an issue to indicate you would like to work on it and to request help from the [me](https://github.com/Nicconike) and the community.
 
 ## Using the issue tracker
 
 The issue tracker is the channel for [bug reports](#bug-report), [features requests](#feature-request), [submitting pull requests](#submitting-a-pull-request) and many more.
 
-Before opening an issue or a Pull Request, please use the [GitHub issue search](https://github.com/Nicconike/goautomate/issues?q=is%3Aissue) to make sure the bug or feature request hasn't been already reported or fixed.
+Before opening an issue or a Pull Request, please use the [GitHub issue search](https://github.com/Nicconike/automatedgo/issues?q=is%3Aissue) to make sure the bug or feature request hasn't been already reported or fixed.
 
 ### Bug report
 
 A good bug report shouldn't leave others needing to chase you for more information.
-Please try to be as detailed as possible in your report and fill the information requested in the [bug report template](https://github.com/Nicconike/goautomate/issues/new?assignees=nicconike&labels=bug&projects=&template=bug-report.yml&title=%5BBUG%5D+).
+Please try to be as detailed as possible in your report and fill the information requested in the [bug report template](https://github.com/Nicconike/automatedgo/issues/new?assignees=nicconike&labels=bug&projects=&template=bug-report.yml&title=%5BBUG%5D+).
 
 ### Feature request
 
 Feature requests are welcome, but take a moment to find out whether your idea fits with the scope and aim of the project.
 It's up to you to make a strong case to convince the project's developers of the merits of this feature.
-Please provide as much detail and context as possible and fill the information requested in the [feature request template](https://github.com/Nicconike/goautomate/issues/new?assignees=nicconike&labels=enhancement&projects=&template=feature-request.yml&title=%5BFEATURE%5D+).
+Please provide as much detail and context as possible and fill the information requested in the [feature request template](https://github.com/Nicconike/automatedgo/issues/new?assignees=nicconike&labels=enhancement&projects=&template=feature-request.yml&title=%5BFEATURE%5D+).
 
 ## Submitting a pull request
 
@@ -111,10 +111,10 @@ To ensure consistency and quality throughout the source code, all code modificat
 
 To ensure consistency and quality, all documentation modifications must:
 
-- Refer to brand in [bold](https://help.github.com/articles/basic-writing-and-formatting-syntax/#styling-text) with proper capitalization, i.e. **GitHub**, **goautomate**,etc.
+- Refer to brand in [bold](https://help.github.com/articles/basic-writing-and-formatting-syntax/#styling-text) with proper capitalization, i.e. **GitHub**, **automatedgo**,etc.
 - Prefer [tables](https://help.github.com/articles/organizing-information-with-tables) over [lists](https://help.github.com/articles/basic-writing-and-formatting-syntax/#lists) when listing key values, i.e. List of options with their description
 - Use [links](https://help.github.com/articles/basic-writing-and-formatting-syntax/#links) when you are referring to:
-  - A **goautomate** concept described somewhere else in the documentation, i.e. How to [contribute](CONTRIBUTING.md)
+  - A **automatedgo** concept described somewhere else in the documentation, i.e. How to [contribute](CONTRIBUTING.md)
   - A third-party product/brand/service, i.e. Integrate with [GitHub](https://github.com)
   - An external concept or feature, i.e. Create a [GitHub release](https://help.github.com/articles/creating-releases)
 - Use the [single backtick `code` quoting](https://help.github.com/articles/basic-writing-and-formatting-syntax/#quoting-code) for:
@@ -159,7 +159,7 @@ Please check [COMMITS.md](https://github.com/Nicconike/Steam-Stats/blob/master/C
 
 ##### Staticcheck
 
-[GoAutomate](https://github.com/Nicconike/goautomate) repository uses [staticcheck](https://staticcheck.dev/) for linting. And below other tools:
+[AutomatedGo](https://github.com/Nicconike/automatedgo) repository uses [staticcheck](https://staticcheck.dev/) for linting. And below other tools:
 - gopls
 - gotests
 - gomodifytags
