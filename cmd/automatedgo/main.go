@@ -1,9 +1,11 @@
 package main
 
 import (
+	"bufio"
 	"flag"
 	"fmt"
 	"os"
+	"strings"
 
 	"github.com/Nicconike/AutomatedGo/pkg"
 )
@@ -52,10 +54,19 @@ func main() {
 
 	if pkg.IsNewer(latestVersion, cv) {
 		fmt.Println("A newer version is available")
-		err := pkg.DownloadGo(latestVersion, *targetOS, *targetArch)
-		if err != nil {
-			fmt.Printf("Error downloading Go: %v\n", err)
-			os.Exit(1)
+		reader := bufio.NewReader(os.Stdin)
+		fmt.Print("Do you want to download the latest version? (yes/no): ")
+		response, _ := reader.ReadString('\n')
+		response = strings.TrimSpace(strings.ToLower(response))
+
+		if response == "yes" {
+			err := pkg.DownloadGo(latestVersion, *targetOS, *targetArch)
+			if err != nil {
+				fmt.Printf("Error downloading Go: %v\n", err)
+				os.Exit(1)
+			}
+		} else {
+			fmt.Println("Download aborted by user")
 		}
 	} else {
 		fmt.Println("You have the latest version")
