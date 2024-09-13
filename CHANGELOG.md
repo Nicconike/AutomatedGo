@@ -5,6 +5,39 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html) and [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/).
 
+## 1.2.0 (2024-09-12)
+
+#### 🎁 Feature
+
+* Prompt user to download (556a1e58)
+
+#### 📄 Documentation
+
+* update issue templates (b195484e)
+* update doc.go (9c3516f7)
+* update readme (0cd6d5a9)
+* update readme (8e7a9882)
+
+#### 🔎 Tests
+
+* 100% codecov (c8f457bf)
+* Improve codecov for downloader.go (576916c9)
+* 100% codecov for checksum.go (4b96091b)
+* Improve codecov for checksum.go (f6578654)
+
+#### 🚧 Chores
+
+* Update name to AutomatedGo (a45ed383)
+* **deps:** bump github.com/schollz/progressbar/v3 (#2) (e582dc62)
+* update .goreleaser.yml (cb0a5e64)
+
+#### 🔁 CI
+
+* update release.yml (89bd3d4a)
+* update incorrect path (90d938d0)
+* update release workflow (a33cd70b)
+* fix pkg.go.dev step (94880923)
+
 
 ## v1.1.0 (2024-07-16)
 
