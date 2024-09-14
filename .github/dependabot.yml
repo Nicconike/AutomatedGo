@@ -11,7 +11,7 @@ updates:
           - dependencies
           - dependabot
       rebase-strategy: auto
-      open-pull-requests-limit: 20
+      open-pull-requests-limit: 10
       reviewers:
           - "nicconike"
 
@@ -25,7 +25,7 @@ updates:
           - dependencies
           - dependabot
       rebase-strategy: auto
-      open-pull-requests-limit: 20
+      open-pull-requests-limit: 10
       reviewers:
           - "nicconike"
       groups:
