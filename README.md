@@ -3,6 +3,7 @@
 [![Publish Packages](https://github.com/Nicconike/AutomatedGo/actions/workflows/docker.yml/badge.svg)](https://github.com/Nicconike/AutomatedGo/actions/workflows/docker.yml)
 [![CodeQL](https://github.com/Nicconike/AutomatedGo/actions/workflows/codeql.yml/badge.svg)](https://github.com/Nicconike/AutomatedGo/actions/workflows/codeql.yml)
 [![Code Coverage](https://github.com/Nicconike/AutomatedGo/actions/workflows/coverage.yml/badge.svg)](https://github.com/Nicconike/AutomatedGo/actions/workflows/coverage.yml)
+[![Go Report Card](https://goreportcard.com/badge/github.com/Nicconike/AutomatedGo)](https://goreportcard.com/report/github.com/Nicconike/AutomatedGo)
 ![GitHub go.mod Go version](https://img.shields.io/github/go-mod/go-version/nicconike/AutomatedGo)
 ![GitHub Release](https://img.shields.io/github/v/release/nicconike/AutomatedGo)
 [![codecov](https://codecov.io/gh/Nicconike/AutomatedGo/graph/badge.svg?token=MPIX1QLEYJ)](https://codecov.io/gh/Nicconike/AutomatedGo)
