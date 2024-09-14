@@ -20,8 +20,7 @@ jobs:
             contents: write
             packages: write
         outputs:
-            new_release_published: ${{ steps.semantic.outputs.new_release_published }}
-            new_release_version: ${{ steps.semantic.outputs.new_release_version }}
+            new_release_version: ${{ steps.semantic.outputs.version }}
         steps:
           - name: GitHub App Token
             uses: actions/create-github-app-token@v1
@@ -45,21 +44,22 @@ jobs:
             uses: go-semantic-release/action@v1
             id: semantic
             with:
+                hooks: goreleaser
                 github-token: ${{ steps.app-token.outputs.token }}
                 changelog-file: CHANGELOG.md
                 update-file: go.mod
                 changelog-generator-opt: "emojis=true"
 
           - name: Update pkg.go.dev
-            if: steps.semantic.outputs.new_release_published == 'true'
+            if: steps.semantic.outputs.version != ''
             run: |
-                go list -m github.com/Nicconike/AutomatedGo@${{ steps.semantic.outputs.new_release_version }}
+                go list -m github.com/Nicconike/AutomatedGo@${{ steps.semantic.outputs.version }}
 
     goreleaser:
         name: GoReleaser
         needs: semantic-release
         runs-on: ubuntu-latest
-        if: needs.semantic-release.outputs.new_release_published == 'true'
+        if: needs.semantic-release.outputs.new_release_version != ''
         permissions:
             contents: write
             packages: write

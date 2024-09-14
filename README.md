@@ -2,7 +2,6 @@
 
 [![Release](https://github.com/Nicconike/AutomatedGo/actions/workflows/release.yml/badge.svg)](https://github.com/Nicconike/AutomatedGo/actions/workflows/release.yml)
 [![Code Coverage](https://github.com/Nicconike/AutomatedGo/actions/workflows/coverage.yml/badge.svg)](https://github.com/Nicconike/AutomatedGo/actions/workflows/coverage.yml)
-[![Go Report Card](https://goreportcard.com/badge/github.com/Nicconike/AutomatedGo)](https://goreportcard.com/report/github.com/Nicconike/AutomatedGo)
 ![GitHub go.mod Go version](https://img.shields.io/github/go-mod/go-version/nicconike/AutomatedGo)
 ![GitHub Release](https://img.shields.io/github/v/release/nicconike/AutomatedGo)
 [![codecov](https://codecov.io/gh/Nicconike/AutomatedGo/graph/badge.svg?token=MPIX1QLEYJ)](https://codecov.io/gh/Nicconike/AutomatedGo)
