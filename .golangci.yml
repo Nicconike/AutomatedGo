@@ -1,0 +1,9 @@
+run:
+    timeout: 1m
+output:
+    formats:
+        - format: colored-line-number
+          path: stdout
+linters:
+    enable:
+        - errcheck

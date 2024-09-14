@@ -35,10 +35,17 @@ jobs:
                 category: "/language:go"
 
     lint:
+        name: Lint
         runs-on: ubuntu-latest
+        needs: codeql
         steps:
-          - uses: actions/checkout@v4
-          - uses: actions/setup-go@v5
+          - name: Checkout Repo
+            uses: actions/checkout@v4
+
+          - name: Setup Go
+            uses: actions/setup-go@v5
             with:
                 go-version: 1.23
-          - uses: golangci/golangci-lint-action@v3
+
+          - name: GolangCI Lint
+            uses: golangci/golangci-lint-action@v3

@@ -39,7 +39,9 @@ func TestGetOfficialChecksum(t *testing.T) {
 						},
 					},
 				}
-				json.NewEncoder(w).Encode(releases)
+				if err := json.NewEncoder(w).Encode(releases); err != nil {
+					t.Fatalf("Failed to encode JSON: %v", err)
+				}
 			},
 			filename: "go1.22.5.linux-amd64.tar.gz",
 			want:     "904b924d435eaea086515bc63235b192ea441bd8c9b198c507e85009e6e4c7f0",
@@ -65,7 +67,9 @@ func TestGetOfficialChecksum(t *testing.T) {
 						},
 					},
 				}
-				json.NewEncoder(w).Encode(releases)
+				if err := json.NewEncoder(w).Encode(releases); err != nil {
+					t.Fatalf("Failed to encode JSON: %v", err)
+				}
 			},
 			filename: "go1.22.5.linux-amd64.tar.gz",
 			want:     "904b924d435eaea086515bc63235b192ea441bd8c9b198c507e85009e6e4c7f0",
@@ -91,7 +95,9 @@ func TestGetOfficialChecksum(t *testing.T) {
 						},
 					},
 				}
-				json.NewEncoder(w).Encode(releases)
+				if err := json.NewEncoder(w).Encode(releases); err != nil {
+					t.Fatalf("Failed to encode JSON: %v", err)
+				}
 			},
 			filename: "invalid.tar.gz",
 			want:     "",
@@ -127,7 +133,9 @@ func TestGetOfficialChecksum(t *testing.T) {
 		{
 			name: "Invalid JSON",
 			serverFunc: func(w http.ResponseWriter, r *http.Request) {
-				w.Write([]byte("invalid json"))
+				if _, err := w.Write([]byte("invalid json")); err != nil {
+					t.Fatalf("Failed to write invalid JSON: %v", err)
+				}
 			},
 			filename: "go1.22.5.linux-amd64.tar.gz",
 			want:     "",

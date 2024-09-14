@@ -22,7 +22,9 @@ func resetTestVersionURL() {
 func TestGetLatestVersion(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
-		w.Write([]byte("go1.17.1\n"))
+		if _, err := w.Write([]byte("go1.17.1\n")); err != nil {
+			t.Fatalf("Failed to write response: %v", err)
+		}
 	}))
 	defer server.Close()
 
@@ -66,7 +68,9 @@ func TestGetLatestVersionReadError(t *testing.T) {
 func TestGetLatestVersionMalformedResponse(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
-		w.Write([]byte("malformed\nresponse\n"))
+		if _, err := w.Write([]byte("malformed\nresponse\n")); err != nil {
+			t.Fatalf("Failed to write response: %v", err)
+		}
 	}))
 	defer server.Close()
 
