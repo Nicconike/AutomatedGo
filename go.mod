@@ -2,7 +2,7 @@ module github.com/Nicconike/AutomatedGo
 
 go 1.15
 
-require github.com/schollz/progressbar/v3 v3.14.6
+require github.com/schollz/progressbar/v3 v3.15.0
 
 require (
 	github.com/stretchr/testify v1.5.1 // indirect
