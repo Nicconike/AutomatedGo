@@ -45,7 +45,6 @@ jobs:
             uses: go-semantic-release/action@v1
             id: semantic
             with:
-                hooks: goreleaser
                 github-token: ${{ steps.app-token.outputs.token }}
                 changelog-file: CHANGELOG.md
                 update-file: go.mod
