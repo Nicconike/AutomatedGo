@@ -19,6 +19,7 @@ jobs:
         permissions:
             contents: write
             packages: write
+            id-token: write
         outputs:
             new_release_version: ${{ steps.semantic.outputs.version }}
         steps:

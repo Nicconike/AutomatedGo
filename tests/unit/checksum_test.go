@@ -2,6 +2,7 @@ package tests
 
 import (
 	"encoding/json"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"os"
@@ -76,6 +77,41 @@ func TestGetOfficialChecksum(t *testing.T) {
 			want:       "",
 			wantErr:    "checksum not found for invalid.tar.gz",
 		},
+		{
+			name: "HTTP failure",
+			serverFunc: func(w http.ResponseWriter, r *http.Request) {
+				http.Error(w, "Service unavailable", http.StatusServiceUnavailable)
+			},
+			filename: goBinary,
+			want:     "",
+			wantErr:  "failed to fetch Go releases: HTTP status 503",
+		},
+		{
+			name: "JSON parsing error",
+			serverFunc: func(w http.ResponseWriter, r *http.Request) {
+				w.WriteHeader(http.StatusOK)
+				w.Write([]byte("invalid json"))
+			},
+			filename: goBinary,
+			want:     "",
+			wantErr:  "failed to parse JSON",
+		},
+		{
+			name: "Read body error",
+			serverFunc: func(w http.ResponseWriter, r *http.Request) {
+				w.WriteHeader(http.StatusOK)
+				io.WriteString(w, "{")
+				// Simulate a read body error by closing the connection prematurely
+				if f, ok := w.(http.Flusher); ok {
+					f.Flush()
+				}
+				conn, _, _ := w.(http.Hijacker).Hijack()
+				conn.Close()
+			},
+			filename: goBinary,
+			want:     "",
+			wantErr:  "failed to read response body",
+		},
 	}
 
 	for _, tt := range tests {
@@ -115,7 +151,7 @@ func assertChecksum(t *testing.T, got string, err error, expected string) {
 		t.Fatalf("CalculateFileChecksum() error = %v", err)
 	}
 	if got != expected {
-		t.Errorf("CalculateFileChecksum() = %v, want %v", got, expected)
+		t.Errorf("CalculateFileChecksum() = %v ,want %v", got, expected)
 	}
 }
 

@@ -1,86 +1,102 @@
 package tests
 
 import (
-	"net/http"
-	"net/http/httptest"
-	"os"
+	"fmt"
+	"runtime"
 	"testing"
 
 	"github.com/Nicconike/AutomatedGo/pkg"
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
 )
 
-func createTestServer(status int, response string) *httptest.Server {
-	return httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.WriteHeader(status)
-		w.Write([]byte(response))
-	}))
+// MockDownloader is a mock implementation of the FileDownloader interface
+type MockDownloader struct {
+	mock.Mock
 }
 
-func createTemp(t *testing.T) *os.File {
-	t.Helper()
-	tmpfile, err := os.CreateTemp("", "downloaded")
-	if err != nil {
-		t.Fatal(err)
-	}
-	return tmpfile
+func (m *MockDownloader) Download(url, filename string) error {
+	args := m.Called(url, filename)
+	return args.Error(0)
 }
 
-func runDownloadTest(t *testing.T, url string, filename string, expectedError string, expectedContent string) {
-	t.Helper()
-	downloader := pkg.DefaultDownloader{}
-	err := downloader.Download(url, filename)
-
-	if expectedError != "" {
-		if err == nil || err.Error() != expectedError {
-			t.Errorf("Download() error = %v, wantErr %v", err, expectedError)
-		}
-		return
-	}
-
-	if err != nil {
-		t.Fatalf("Download() unexpected error = %v", err)
-	}
-
-	content, err := os.ReadFile(filename)
-	if err != nil {
-		t.Fatalf("ReadFile() error = %v", err)
-	}
-
-	if string(content) != expectedContent {
-		t.Errorf("Downloaded content = %v, want %v", string(content), expectedContent)
-	}
+// MockRemover is a mock implementation of the FileRemover interface
+type MockRemover struct {
+	mock.Mock
 }
 
-func TestDownload(t *testing.T) {
+func (m *MockRemover) Remove(filename string) error {
+	args := m.Called(filename)
+	return args.Error(0)
+}
+
+// MockChecksumCalculator is a mock implementation of the ChecksumCalculator interface
+type MockChecksumCalculator struct {
+	mock.Mock
+}
+
+func (m *MockChecksumCalculator) GetOfficialChecksum(filename string) (string, error) {
+	args := m.Called(filename)
+	return args.String(0), args.Error(1)
+}
+
+func (m *MockChecksumCalculator) Calculate(filename string) (string, error) {
+	args := m.Called(filename)
+	return args.String(0), args.Error(1)
+}
+
+func TestDownloadGo(t *testing.T) {
 	tests := []struct {
-		name           string
-		serverResponse string
-		serverStatus   int
-		expectedError  string
+		name          string
+		version       string
+		targetOS      string
+		arch          string
+		path          string
+		setupMocks    func(d *MockDownloader, r *MockRemover, c *MockChecksumCalculator)
+		expectedError error
 	}{
 		{
-			name:           "Successful download",
-			serverResponse: "file content",
-			serverStatus:   http.StatusOK,
-			expectedError:  "",
-		},
-		{
-			name:           "Server error",
-			serverResponse: "",
-			serverStatus:   http.StatusInternalServerError,
-			expectedError:  "unexpected status code: 500",
+			name:     "Successful download and checksum verification",
+			version:  "go1.16.5",
+			targetOS: runtime.GOOS,
+			arch:     runtime.GOARCH,
+			path:     "/tmp",
+			setupMocks: func(d *MockDownloader, r *MockRemover, c *MockChecksumCalculator) {
+				var extension string
+				if runtime.GOOS == "windows" {
+					extension = "zip"
+				} else {
+					extension = "tar.gz"
+				}
+				filename := fmt.Sprintf("/tmp/go1.16.5.%s-%s.%s", runtime.GOOS, runtime.GOARCH, extension)
+
+				c.On("GetOfficialChecksum", filename).Return("checksum-value", nil)
+				d.On("Download", fmt.Sprintf(pkg.DownloadURLFormat, "1.16.5", runtime.GOOS, runtime.GOARCH, extension), filename).Return(nil)
+				c.On("Calculate", filename).Return("checksum-value", nil)
+			},
+			expectedError: nil,
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			server := createTestServer(tt.serverStatus, tt.serverResponse)
-			defer server.Close()
+			mockDownloader := new(MockDownloader)
+			mockRemover := new(MockRemover)
+			mockChecksumCalculator := new(MockChecksumCalculator)
 
-			tmpfile := createTemp(t)
-			defer os.Remove(tmpfile.Name())
+			tt.setupMocks(mockDownloader, mockRemover, mockChecksumCalculator)
 
-			runDownloadTest(t, server.URL, tmpfile.Name(), tt.expectedError, tt.serverResponse)
+			err := pkg.DownloadGo(tt.version, tt.targetOS, tt.arch, tt.path, mockDownloader, mockRemover, mockChecksumCalculator)
+
+			if tt.expectedError != nil {
+				assert.EqualError(t, err, tt.expectedError.Error())
+			} else {
+				assert.NoError(t, err)
+			}
+
+			mockDownloader.AssertExpectations(t)
+			mockRemover.AssertExpectations(t)
+			mockChecksumCalculator.AssertExpectations(t)
 		})
 	}
 }

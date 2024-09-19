@@ -5,6 +5,46 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html) and [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/).
 
+## 2.0.0 (2024-09-19)
+
+#### 📣 Breaking Changes
+
+* update code with interfaces (168bda7c)
+```
+test: add unittests for main.go
+refactor: refactor all code as per interfaces implementation
+ci: update package release
+build: update go.mod
+docs: update readme
+
+BREAKING CHANGE: Interfaces Implementation and now prompt for download with path
+```
+
+#### 📄 Documentation
+
+* add security policy & PR template (e60659b7)
+* update changelog (2c4913d6)
+
+#### 🔀 Code Refactoring
+
+* fix lint issues for unittests (fd6183f6)
+
+#### 🚧 Chores
+
+* **deps:** bump github.com/schollz/progressbar/v3 (#4) (0dc10f57)
+
+#### 🔁 CI
+
+* bump golangci/golangci-lint-action in the github-actions group (#3) (e29d363f)
+* add cosign image step (9de12705)
+* update tags (54772870)
+* fix workflows (efeb78b0)
+* update docker.yml to use GH App token (910d9150)
+* Add docker CI (4c81a0c2)
+* update codeql for go (ad7cdb2b)
+* Create codeql.yml (7682fcf1)
+
+
 ## 1.2.0 (2024-09-12)
 
 #### 🎁 Feature
