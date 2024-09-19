@@ -9,6 +9,8 @@ import (
 	"os"
 )
 
+type DefaultChecksumCalculator struct{}
+
 type GoRelease struct {
 	Version string `json:"version"`
 	Stable  bool   `json:"stable"`
@@ -23,10 +25,7 @@ type GoRelease struct {
 
 var URL = "https://go.dev/dl/?mode=json"
 
-var GetOfficialChecksum = getOfficialChecksum
-var CalculateFileChecksum = calculateFileChecksum
-
-func getOfficialChecksum(filename string) (string, error) {
+func (c *DefaultChecksumCalculator) GetOfficialChecksum(filename string) (string, error) {
 	resp, err := http.Get(URL)
 	if err != nil {
 		return "", fmt.Errorf("failed to fetch Go releases: %w", err)
@@ -58,7 +57,7 @@ func getOfficialChecksum(filename string) (string, error) {
 	return "", fmt.Errorf("checksum not found for %s", filename)
 }
 
-func calculateFileChecksum(filename string) (string, error) {
+func (c *DefaultChecksumCalculator) Calculate(filename string) (string, error) {
 	file, err := os.Open(filename)
 	if err != nil {
 		return "", err

@@ -1,11 +1,9 @@
 package main
 
 import (
-	"bufio"
 	"flag"
 	"fmt"
 	"os"
-	"strings"
 
 	"github.com/Nicconike/AutomatedGo/pkg"
 )
@@ -15,7 +13,7 @@ func main() {
 	versionFile := flag.String("file", "", "Path to file containing current Go version")
 	currentVersion := flag.String("version", "", "Current Go version")
 	targetOS := flag.String("os", "", "Target operating system (windows, linux, darwin)")
-	targetArch := flag.String("arch", "", "Target architecture (386, amd64, arm64, armv6l)")
+	targetArch := flag.String("arch", "", "Target architecture (386, amd64, armv6l)")
 
 	// Add aliases for short versions
 	flag.StringVar(versionFile, "f", "", "Path to file containing current Go version (shorthand)")
@@ -31,44 +29,15 @@ func main() {
 
 	flag.Parse()
 
-	// Check if either file or version is specified
-	if *versionFile == "" && *currentVersion == "" {
-		fmt.Println("Error: Either -file (-f) or -version (-v) must be specified")
-		flag.Usage()
-		os.Exit(1)
+	// Initialize the VersionService with default implementations
+	service := &pkg.VersionService{
+		Downloader: &pkg.DefaultDownloader{},
+		Remover:    &pkg.DefaultRemover{},
+		Checksum:   &pkg.DefaultChecksumCalculator{},
 	}
 
-	cv, err := pkg.GetCurrentVersion(*versionFile, *currentVersion)
-	if err != nil {
-		fmt.Printf("Error getting current version: %v\n", err)
+	if err := pkg.Run(service, *versionFile, *currentVersion, *targetOS, *targetArch, os.Stdin, os.Stdout); err != nil {
+		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
-	}
-	fmt.Printf("Current version: %s\n", cv)
-
-	latestVersion, err := pkg.GetLatestVersion()
-	if err != nil {
-		fmt.Printf("Error checking latest version: %v\n", err)
-		os.Exit(1)
-	}
-	fmt.Printf("Latest version: %s\n", latestVersion)
-
-	if pkg.IsNewer(latestVersion, cv) {
-		fmt.Println("A newer version is available")
-		reader := bufio.NewReader(os.Stdin)
-		fmt.Print("Do you want to download the latest version? (yes/no): ")
-		response, _ := reader.ReadString('\n')
-		response = strings.TrimSpace(strings.ToLower(response))
-
-		if response == "yes" {
-			err := pkg.DownloadGo(latestVersion, *targetOS, *targetArch)
-			if err != nil {
-				fmt.Printf("Error downloading Go: %v\n", err)
-				os.Exit(1)
-			}
-		} else {
-			fmt.Println("Download aborted by user")
-		}
-	} else {
-		fmt.Println("You have the latest version")
 	}
 }

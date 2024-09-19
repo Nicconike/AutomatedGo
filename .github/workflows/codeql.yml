@@ -3,6 +3,9 @@ name: "CodeQL"
 on:
     push:
         branches: master
+        paths:
+            - ".github/workflows/codeql.yml"
+            - "**/*.go"
     pull_request:
         branches: master
 

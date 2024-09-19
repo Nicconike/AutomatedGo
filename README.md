@@ -4,11 +4,14 @@
 [![CodeQL](https://github.com/Nicconike/AutomatedGo/actions/workflows/codeql.yml/badge.svg)](https://github.com/Nicconike/AutomatedGo/actions/workflows/codeql.yml)
 [![Code Coverage](https://github.com/Nicconike/AutomatedGo/actions/workflows/coverage.yml/badge.svg)](https://github.com/Nicconike/AutomatedGo/actions/workflows/coverage.yml)
 [![Go Report Card](https://goreportcard.com/badge/github.com/Nicconike/AutomatedGo)](https://goreportcard.com/report/github.com/Nicconike/AutomatedGo)
+[![codecov](https://codecov.io/gh/Nicconike/AutomatedGo/graph/badge.svg?token=MPIX1QLEYJ)](https://codecov.io/gh/Nicconike/AutomatedGo)
 ![GitHub go.mod Go version](https://img.shields.io/github/go-mod/go-version/nicconike/AutomatedGo)
 ![GitHub Release](https://img.shields.io/github/v/release/nicconike/AutomatedGo)
-[![codecov](https://codecov.io/gh/Nicconike/AutomatedGo/graph/badge.svg?token=MPIX1QLEYJ)](https://codecov.io/gh/Nicconike/AutomatedGo)
+![Docker Image Size](https://img.shields.io/docker/image-size/nicconike/automatedgo?logo=docker&label=Docker%20Image)
+![Docker Pulls](https://img.shields.io/docker/pulls/nicconike/automatedgo?logo=docker&label=Docker%20Pulls)
 [![Go Reference](https://pkg.go.dev/badge/github.com/Nicconike/AutomatedGo.svg)](https://pkg.go.dev/github.com/Nicconike/AutomatedGo)
 ![GitHub License](https://img.shields.io/github/license/nicconike/AutomatedGo)
+[![wakatime](https://wakatime.com/badge/user/018e538b-3f55-4e8e-95fa-6c3225418eed/project/148b8322-28da-4cf4-85c2-bb20c2fe1295.svg)](https://wakatime.com/badge/user/018e538b-3f55-4e8e-95fa-6c3225418eed/project/148b8322-28da-4cf4-85c2-bb20c2fe1295)
 [![Visitor Badge](https://badges.pufler.dev/visits/nicconike/AutomatedGo)](https://badges.pufler.dev)
 
 **AutomatedGo** is a Go tool that automates the process of checking and updating Go versions in your projects. It can detect the current Go version from various file types, compare it with the latest available version, and download the newest version if an update is available.
@@ -23,9 +26,14 @@
 
 ## Installation
 
-To install **AutomatedGo**, use the following command:
+To add **AutomatedGo** in your Go project, use the following command:
 ```sh
 go get -u github.com/Nicconike/AutomatedGo
+```
+
+To install **AutomatedGo** as a Go binary, use the following command:
+```sh
+go install github.com/Nicconike/AutomatedGo/cmd/automatedgo@v1.2.0
 ```
 
 ## Usage
@@ -41,7 +49,7 @@ This will check the specified file for the current Go version, compare it with t
 > [!NOTE]
 > If you don't specify the `os` and `arch` type, the tool will download the latest version for your current operating system and architecture.
 >
-> Minimum required Go version: 1.15
+> Minimum required Go version: 1.17
 
 ### Command-line Options
 

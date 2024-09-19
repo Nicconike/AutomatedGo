@@ -12,19 +12,16 @@ import (
 	"github.com/schollz/progressbar/v3"
 )
 
-var NewProgressBar = progressbar.NewOptions64
 var DownloadURLFormat = "https://dl.google.com/go/go%s.%s-%s.%s"
-var DownloadFile = downloadFile
-var OsRemove = os.Remove
-var RuntimeGOOS = runtime.GOOS
-var RuntimeGOARCH = runtime.GOARCH
 var validPlatforms = map[string][]string{
 	"windows": {"386", "amd64"},
 	"linux":   {"386", "amd64", "arm64", "armv6l"},
 	"darwin":  {"amd64", "arm64"},
 }
 
-func downloadFile(url, filename string) error {
+type DefaultDownloader struct{}
+
+func (d *DefaultDownloader) Download(url, filename string) error {
 	resp, err := http.Get(url)
 	if err != nil {
 		return fmt.Errorf("error downloading: %w", err)
@@ -41,7 +38,7 @@ func downloadFile(url, filename string) error {
 	}
 	defer out.Close()
 
-	bar := NewProgressBar(
+	bar := progressbar.NewOptions64(
 		resp.ContentLength,
 		progressbar.OptionSetWidth(50),
 		progressbar.OptionSetDescription("Downloading:"),
@@ -67,7 +64,13 @@ func downloadFile(url, filename string) error {
 	return nil
 }
 
-func DownloadGo(version, targetOS, arch string) error {
+type DefaultRemover struct{}
+
+func (r *DefaultRemover) Remove(filename string) error {
+	return os.Remove(filename)
+}
+
+func DownloadGo(version, targetOS, arch, path string, downloader FileDownloader, remover FileRemover, checksum ChecksumCalculator) error {
 	version = strings.TrimPrefix(version, "go")
 	fmt.Printf("Preparing to download Go version %s\n", version)
 
@@ -87,6 +90,8 @@ func DownloadGo(version, targetOS, arch string) error {
 			arch = "amd64"
 		case "linux":
 			arch = runtime.GOARCH
+		default:
+			return fmt.Errorf("unsupported operating system: %s", targetOS)
 		}
 		fmt.Printf("Architecture not specified, using default: %s\n", arch)
 	}
@@ -107,34 +112,27 @@ func DownloadGo(version, targetOS, arch string) error {
 		extension = "zip"
 	}
 
-	filename := fmt.Sprintf("go%s.%s-%s.%s", version, targetOS, arch, extension)
+	filename := fmt.Sprintf("%s/go%s.%s-%s.%s", path, version, targetOS, arch, extension)
 	fmt.Printf("Fetching Official Checksum for %s\n", filename)
-	officialChecksum, err := GetOfficialChecksum(filename)
+
+	officialChecksum, err := checksum.GetOfficialChecksum(filename)
 	if err != nil {
 		fmt.Printf("Failed to get official checksum: %s\n", err)
 		return err
 	}
 
 	url := fmt.Sprintf(DownloadURLFormat, version, targetOS, arch, extension)
-	err = DownloadFile(url, filename)
+	err = downloader.Download(url, filename)
 	if err != nil {
 		fmt.Printf("Error downloading file: %s\n", err)
 		return err
 	}
 
 	fmt.Printf("\nCalculating checksum for %s\n", filename)
-	calculatedChecksum, err := CalculateFileChecksum(filename)
-	if err != nil {
-		if removeErr := OsRemove(filename); removeErr != nil {
+	calculatedChecksum, err := checksum.Calculate(filename)
+	if err != nil || calculatedChecksum != officialChecksum {
+		if removeErr := remover.Remove(filename); removeErr != nil {
 			fmt.Printf("Error removing file %s after failed checksum calculation: %s\n", filename, removeErr)
-		}
-		fmt.Printf("Failed to calculate checksum: %s\n", err)
-		return err
-	}
-
-	if calculatedChecksum != officialChecksum {
-		if removeErr := OsRemove(filename); removeErr != nil {
-			fmt.Printf("Error removing file %s after checksum mismatch: %s\n", filename, removeErr)
 		}
 		errMsg := fmt.Sprintf("Checksum mismatch: expected %s, got %s for file %s", officialChecksum, calculatedChecksum, filename)
 		fmt.Println(errMsg)

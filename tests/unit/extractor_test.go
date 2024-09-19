@@ -2,10 +2,36 @@ package tests
 
 import (
 	"os"
+	"strings"
 	"testing"
 
 	"github.com/Nicconike/AutomatedGo/pkg"
 )
+
+func runGetCurrentVersionTest(t *testing.T, filePath, directVersion, expectedResult string, expectError bool) {
+	t.Helper()
+	result, err := pkg.GetCurrentVersion(filePath, directVersion)
+	if (err != nil) != expectError {
+		t.Errorf("GetCurrentVersion() error = %v, expectError %v", err, expectError)
+		return
+	}
+	if result != expectedResult {
+		t.Errorf("GetCurrentVersion() = %v, want %v", result, expectedResult)
+	}
+}
+
+func createTempFile(t *testing.T, content string) *os.File {
+	t.Helper()
+	tmpfile, err := os.CreateTemp("", "version")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, err := tmpfile.Write([]byte(content)); err != nil {
+		t.Fatal(err)
+	}
+	tmpfile.Close()
+	return tmpfile
+}
 
 func TestGetCurrentVersion(t *testing.T) {
 	tests := []struct {
@@ -21,44 +47,20 @@ func TestGetCurrentVersion(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			result, err := pkg.GetCurrentVersion(tt.filePath, tt.directVersion)
-			if (err != nil) != tt.expectError {
-				t.Errorf("GetCurrentVersion() error = %v, expectError %v", err, tt.expectError)
-				return
-			}
-			if result != tt.expectedResult {
-				t.Errorf("GetCurrentVersion() = %v, want %v", result, tt.expectedResult)
-			}
+			runGetCurrentVersionTest(t, tt.filePath, tt.directVersion, tt.expectedResult, tt.expectError)
 		})
 	}
 
-	// Test with valid file path
-	tmpfile, err := os.CreateTemp("", "version")
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer os.Remove(tmpfile.Name())
-	if _, err := tmpfile.Write([]byte("go 1.17")); err != nil {
-		t.Fatal(err)
-	}
-	tmpfile.Close()
+	t.Run("Valid file path", func(t *testing.T) {
+		tmpfile := createTempFile(t, "go 1.18")
+		defer os.Remove(tmpfile.Name())
 
-	result, err := pkg.GetCurrentVersion(tmpfile.Name(), "")
-	if err != nil {
-		t.Errorf("GetCurrentVersion() error = %v, expectError false", err)
-	}
-	if result != "1.17" {
-		t.Errorf("GetCurrentVersion() = %v, want %v", result, "1.17")
-	}
+		runGetCurrentVersionTest(t, tmpfile.Name(), "", "1.18", false)
+	})
 
-	// Test with invalid file path
-	result, err = pkg.GetCurrentVersion("/non/existent/path", "")
-	if err == nil {
-		t.Errorf("GetCurrentVersion() expected error for non-existent file")
-	}
-	if result != "" {
-		t.Errorf("GetCurrentVersion() = %v, want empty string", result)
-	}
+	t.Run("Invalid file path", func(t *testing.T) {
+		runGetCurrentVersionTest(t, "/non/existent/path", "", "", true)
+	})
 }
 
 func TestExtractGoVersion(t *testing.T) {
@@ -67,26 +69,10 @@ func TestExtractGoVersion(t *testing.T) {
 		content  string
 		expected string
 	}{
-		{"Dockerfile", "FROM golang:1.16.5", "1.16.5"},
+		{"Dockerfile", "FROM golang:1.17.5", "1.17.5"},
 		{"go.mod", "go 1.17", "1.17"},
 		{"JSON", `{"go_version": "1.18.0"}`, "1.18.0"},
 		{"No version", "Some random content", ""},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			result := pkg.ExtractGoVersion(tt.content)
-			if result != tt.expected {
-				t.Errorf("ExtractGoVersion() = %v, want %v", result, tt.expected)
-			}
-		})
-	}
-
-	additionalTests := []struct {
-		name     string
-		content  string
-		expected string
-	}{
 		{"Version with equals", "go_version = 1.17.1", "1.17.1"},
 		{"Golang version", "golang_version: 1.18.0", "1.18.0"},
 		{"Version without prefix", "1.19.0", "1.19.0"},
@@ -97,7 +83,7 @@ func TestExtractGoVersion(t *testing.T) {
 		{"JSON with GO_VERSION", `{"GO_VERSION": "1.24.0"}`, "1.24.0"},
 	}
 
-	for _, tt := range additionalTests {
+	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			result := pkg.ExtractGoVersion(tt.content)
 			if result != tt.expected {
@@ -144,13 +130,14 @@ func TestReadVersionFromFile(t *testing.T) {
 		t.Fatal(err)
 	}
 	defer os.Remove(noVersionFile.Name())
+
 	if _, err := noVersionFile.Write([]byte("No version here")); err != nil {
 		t.Fatal(err)
 	}
 	noVersionFile.Close()
 
-	_, err = pkg.ReadVersionFromFile(noVersionFile.Name())
-	if err == nil || err.Error() != "unable to extract Go version from file" {
-		t.Errorf("Expected 'unable to extract Go version from file' error, got %v", err)
+	result, err := pkg.ReadVersionFromFile(noVersionFile.Name())
+	if result != "" || (err == nil || !strings.Contains(err.Error(), "unable to extract Go version from file")) {
+		t.Errorf("Expected 'unable to extract Go version from file' error, got %v with result %s", err, result)
 	}
 }
