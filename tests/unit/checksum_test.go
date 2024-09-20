@@ -90,7 +90,9 @@ func TestGetOfficialChecksum(t *testing.T) {
 			name: "JSON parsing error",
 			serverFunc: func(w http.ResponseWriter, r *http.Request) {
 				w.WriteHeader(http.StatusOK)
-				w.Write([]byte("invalid json"))
+				if _, err := w.Write([]byte("invalid json")); err != nil {
+					t.Errorf("Failed to write response body: %v", err)
+				}
 			},
 			filename: goBinary,
 			want:     "",
@@ -100,8 +102,9 @@ func TestGetOfficialChecksum(t *testing.T) {
 			name: "Read body error",
 			serverFunc: func(w http.ResponseWriter, r *http.Request) {
 				w.WriteHeader(http.StatusOK)
-				io.WriteString(w, "{")
-				// Simulate a read body error by closing the connection prematurely
+				if _, err := io.WriteString(w, "{"); err != nil {
+					t.Errorf("Failed to write response body: %v", err)
+				}
 				if f, ok := w.(http.Flusher); ok {
 					f.Flush()
 				}
