@@ -75,6 +75,13 @@ jobs:
                     type=semver,pattern={{version}}
                     type=semver,pattern={{major}}.{{minor}}
 
+          - name: Debug Metadata Outputs
+            run: |
+                echo "Tags extracted:"
+                echo "${{ steps.meta.outputs.tags }}"
+                echo "Labels extracted:"
+                echo "${{ steps.meta.outputs.labels }}"
+
           - name: Build & Push Docker Images
             id: push
             uses: docker/build-push-action@v6
@@ -105,3 +112,50 @@ jobs:
                 subject-name: ghcr.io/${{ github.repository_owner }}/AutomatedGo
                 subject-digest: ${{ steps.push.outputs.digest }}
                 push-to-registry: true
+
+    cleanup:
+        runs-on: ubuntu-latest
+        steps:
+          - name: Checkout Code
+            uses: actions/checkout@v4
+
+          - name: Setup Docker CLI
+            run: |
+                echo "${{ secrets.DOCKER_TOKEN }}" | docker login -u "${{ vars.DOCKER_USERNAME }}" --password-stdin
+
+          - name: List Docker Hub Tags
+            id: list-tags
+            run: |
+                tags=$(curl -s "https://hub.docker.com/v2/repositories/${{ vars.DOCKER_USERNAME }}/automatedgo/tags" | jq -r '.results[].name')
+                echo "Tags found: $tags"
+                echo "::set-output name=tags::$tags"
+
+          - name: Delete Old Docker Hub Tags
+            run: |
+                latest_tag=$(echo "${{ steps.list-tags.outputs.tags }}" | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | sort -rV | head -n 1)
+                for tag in ${{ steps.list-tags.outputs.tags }}; do
+                    if [[ "$tag" != "$latest_tag" && "$tag" != "master" ]]; then
+                    echo "Deleting tag $tag from Docker Hub"
+                    curl -X DELETE "https://hub.docker.com/v2/repositories/${{ vars.DOCKER_USERNAME }}/automatedgo/tags/$tag/" \
+                        -u "${{ vars.DOCKER_USERNAME }}:${{ secrets.DOCKER_TOKEN }}"
+                    fi
+                done
+
+          - name: List GHCR Tags
+            id: list-ghcr-tags
+            run: |
+                tags=$(gh api "repos/${{ github.repository_owner }}/packages/container/automatedgo/versions" | jq -r '.[].metadata.container.tags[]')
+                echo "Tags found in GHCR: $tags"
+                echo "::set-output name=ghcr-tags::$tags"
+
+          - name: Delete Old GHCR Tags
+            env:
+                GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+            run: |
+                latest_tag=$(echo "${{ steps.list-ghcr-tags.outputs.ghcr-tags }}" | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | sort -rV | head -n 1)
+                for tag in ${{ steps.list-ghcr-tags.outputs.ghcr-tags }}; do
+                    if [[ "$tag" != "$latest_tag" && "$tag" != "master" ]]; then
+                    echo "Deleting tag $tag from GHCR"
+                    gh api --method DELETE "/repos/${{ github.repository_owner }}/packages/container/automatedgo/versions/$tag"
+                    fi
+                done
