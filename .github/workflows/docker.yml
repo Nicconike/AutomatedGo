@@ -115,47 +115,62 @@ jobs:
 
     cleanup:
         runs-on: ubuntu-latest
+        needs: packages
+        permissions:
+            contents: read
         steps:
           - name: Checkout Code
             uses: actions/checkout@v4
 
-          - name: Setup Docker CLI
-            run: |
-                echo "${{ secrets.DOCKER_TOKEN }}" | docker login -u "${{ vars.DOCKER_USERNAME }}" --password-stdin
+          - name: Login to Docker Hub
+            uses: docker/login-action@v3
+            with:
+                username: ${{ vars.DOCKER_USERNAME }}
+                password: ${{ secrets.DOCKER_TOKEN }}
+
+          - name: Login to GitHub Container Registry
+            uses: docker/login-action@v3
+            with:
+                registry: ghcr.io
+                username: ${{ github.actor }}
+                password: ${{ secrets.GITHUB_TOKEN }}
 
           - name: List Docker Hub Tags
-            id: list-tags
             run: |
                 tags=$(curl -s "https://hub.docker.com/v2/repositories/${{ vars.DOCKER_USERNAME }}/automatedgo/tags" | jq -r '.results[].name')
-                echo "Tags found: $tags"
-                echo "::set-output name=tags::$tags"
+                echo "Tags found in Docker Hub:"
+                echo "$tags"
+                echo "TAGS=$tags" >> $GITHUB_ENV
 
           - name: Delete Old Docker Hub Tags
             run: |
-                latest_tag=$(echo "${{ steps.list-tags.outputs.tags }}" | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | sort -rV | head -n 1)
-                for tag in ${{ steps.list-tags.outputs.tags }}; do
-                    if [[ "$tag" != "$latest_tag" && "$tag" != "master" ]]; then
+                latest_tag=$(echo "${TAGS}" | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | sort -rV | head -n 1)
+                for tag in ${TAGS}; do
+                if [[ "$tag" != "$latest_tag" && "$tag" != "master" ]]; then
                     echo "Deleting tag $tag from Docker Hub"
                     curl -X DELETE "https://hub.docker.com/v2/repositories/${{ vars.DOCKER_USERNAME }}/automatedgo/tags/$tag/" \
-                        -u "${{ vars.DOCKER_USERNAME }}:${{ secrets.DOCKER_TOKEN }}"
-                    fi
+                    -u "${{ vars.DOCKER_USERNAME }}:${{ secrets.DOCKER_TOKEN }}"
+                fi
                 done
 
           - name: List GHCR Tags
-            id: list-ghcr-tags
+            env:
+                GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
             run: |
                 tags=$(gh api "repos/${{ github.repository_owner }}/packages/container/automatedgo/versions" | jq -r '.[].metadata.container.tags[]')
-                echo "Tags found in GHCR: $tags"
-                echo "::set-output name=ghcr-tags::$tags"
+                echo "Tags found in GHCR:"
+                echo "$tags"
+                echo "GHCR_TAGS=$tags" >> $GITHUB_ENV
 
           - name: Delete Old GHCR Tags
             env:
                 GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
             run: |
-                latest_tag=$(echo "${{ steps.list-ghcr-tags.outputs.ghcr-tags }}" | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | sort -rV | head -n 1)
-                for tag in ${{ steps.list-ghcr-tags.outputs.ghcr-tags }}; do
-                    if [[ "$tag" != "$latest_tag" && "$tag" != "master" ]]; then
+                latest_tag=$(echo "${GHCR_TAGS}" | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | sort -rV | head -n 1)
+                for tag in ${GHCR_TAGS}; do
+                if [[ "$tag" != "$latest_tag" && "$tag" != "master" ]]; then
                     echo "Deleting tag $tag from GHCR"
-                    gh api --method DELETE "/repos/${{ github.repository_owner }}/packages/container/automatedgo/versions/$tag"
-                    fi
+                    version_id=$(gh api "repos/${{ github.repository_owner }}/packages/container/automatedgo/versions" | jq -r ".[] | select(.metadata.container.tags[] == \"$tag\") | .id")
+                    gh api --method DELETE "/user/packages/container/automatedgo/versions/$version_id"
+                fi
                 done
