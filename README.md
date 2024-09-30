@@ -33,7 +33,7 @@ go get -u github.com/Nicconike/AutomatedGo
 
 To install **AutomatedGo** as a Go binary, use the following command:
 ```sh
-go install github.com/Nicconike/AutomatedGo/cmd/automatedgo@v1.2.0
+go install github.com/Nicconike/AutomatedGo/cmd/automatedgo@v2.0.1
 ```
 
 ## Usage
