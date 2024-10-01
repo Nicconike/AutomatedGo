@@ -33,7 +33,7 @@ go get -u github.com/Nicconike/AutomatedGo
 
 To install **AutomatedGo** as a Go binary, use the following command:
 ```sh
-go install github.com/Nicconike/AutomatedGo/cmd/automatedgo@v2.0.1
+go install github.com/Nicconike/AutomatedGo/v2/cmd/automatedgo@v2.0.3
 ```
 
 ## Usage
@@ -49,7 +49,7 @@ This will check the specified file for the current Go version, compare it with t
 > [!NOTE]
 > If you don't specify the `os` and `arch` type, the tool will download the latest version for your current operating system and architecture.
 >
-> Minimum required Go version: 1.17
+> Minimum required Go version: 1.18
 
 ### Command-line Options
 
@@ -74,7 +74,7 @@ This will check the specified file for the current Go version, compare it with t
 
 3. Specify version directly:
 	```sh
-	automatedgo -v 1.17
+	automatedgo -v 1.18
 	```
 	![Direct Example](https://github.com/Nicconike/AutomatedGo/blob/master/assets/direct_example.png)
 

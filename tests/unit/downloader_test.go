@@ -5,7 +5,7 @@ import (
 	"runtime"
 	"testing"
 
-	"github.com/Nicconike/AutomatedGo/pkg"
+	"github.com/Nicconike/AutomatedGo/v2/pkg"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )

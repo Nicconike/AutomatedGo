@@ -2,6 +2,8 @@ name: Publish Packages
 
 on:
     push:
+        paths:
+            - '.github/workflows/docker.yml'
         tags:
             - 'v*.*.*'
 
