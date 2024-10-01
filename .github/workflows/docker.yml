@@ -2,21 +2,11 @@ name: Publish Packages
 
 on:
     push:
-        branches: master
-        paths:
-            - ".github/workflows/docker.yml"
-            - "**/*.go"
         tags:
             - 'v*.*.*'
-    release:
-        types: published
 
 jobs:
     packages:
-        if: |
-            github.actor != 'dependabot[bot]' &&
-            github.actor != 'github-actions[bot]' &&
-            github.actor != 'protected-auto-commits[bot]'
         name: Docker Images
         runs-on: ubuntu-latest
         permissions:
@@ -24,7 +14,6 @@ jobs:
             packages: write
             attestations: write
             id-token: write
-
         steps:
           - name: GitHub App Token
             uses: actions/create-github-app-token@v1
@@ -71,16 +60,9 @@ jobs:
                     ${{ vars.DOCKER_USERNAME }}/automatedgo
                     ghcr.io/${{ github.repository_owner }}/AutomatedGo
                 tags: |
-                    type=ref,event=branch
-                    type=semver,pattern={{version}}
-                    type=semver,pattern={{major}}.{{minor}}
-
-          - name: Debug Metadata Outputs
-            run: |
-                echo "Tags extracted:"
-                echo "${{ steps.meta.outputs.tags }}"
-                echo "Labels extracted:"
-                echo "${{ steps.meta.outputs.labels }}"
+                    type=semver,pattern={{version}},skip-sha
+                    type=semver,pattern={{major}}.{{minor}},skip-sha
+                    type=semver,pattern={{major}}.{{minor}}.{{patch}},skip-sha
 
           - name: Build & Push Docker Images
             id: push
@@ -88,7 +70,7 @@ jobs:
             with:
                 context: .
                 file: ./Dockerfile
-                push: ${{ github.event_name != 'pull_request' && steps.meta.outputs.tags != '' }}
+                push: true
                 tags: ${{ steps.meta.outputs.tags }}
                 labels: ${{ steps.meta.outputs.labels }}
                 cache-from: type=gha
@@ -118,8 +100,9 @@ jobs:
         needs: packages
         permissions:
             contents: read
+            packages: write
         steps:
-          - name: Checkout Code
+          - name: Checkout Repo
             uses: actions/checkout@v4
 
           - name: Login to Docker Hub
@@ -135,42 +118,36 @@ jobs:
                 username: ${{ github.actor }}
                 password: ${{ secrets.GITHUB_TOKEN }}
 
-          - name: List Docker Hub Tags
+          - name: List & Delete Old Docker Hub Tags
             run: |
+                echo "Fetching Docker Hub tags..."
                 tags=$(curl -s "https://hub.docker.com/v2/repositories/${{ vars.DOCKER_USERNAME }}/automatedgo/tags" | jq -r '.results[].name')
                 echo "Tags found in Docker Hub:"
                 echo "$tags"
-                echo "TAGS=$tags" >> $GITHUB_ENV
-
-          - name: Delete Old Docker Hub Tags
-            run: |
-                latest_tag=$(echo "${TAGS}" | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | sort -rV | head -n 1)
-                for tag in ${TAGS}; do
-                if [[ "$tag" != "$latest_tag" && "$tag" != "master" ]]; then
-                    echo "Deleting tag $tag from Docker Hub"
-                    curl -X DELETE "https://hub.docker.com/v2/repositories/${{ vars.DOCKER_USERNAME }}/automatedgo/tags/$tag/" \
-                    -u "${{ vars.DOCKER_USERNAME }}:${{ secrets.DOCKER_TOKEN }}"
-                fi
+                latest_tag=$(echo "$tags" | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | sort -rV | head -n 1)
+                echo "Latest semantic version tag is $latest_tag"
+                for tag in $tags; do
+                    if [[ ! "$tag" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ || "$tag" != "$latest_tag" ]]; then
+                        echo "Deleting tag $tag from Docker Hub"
+                        curl -X DELETE "https://hub.docker.com/v2/repositories/${{ vars.DOCKER_USERNAME }}/automatedgo/tags/$tag/" \
+                        -u "${{ vars.DOCKER_USERNAME }}:${{ secrets.DOCKER_TOKEN }}"
+                    fi
                 done
-
-          - name: List GHCR Tags
-            env:
-                GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-            run: |
-                tags=$(gh api "repos/${{ github.repository_owner }}/packages/container/automatedgo/versions" | jq -r '.[].metadata.container.tags[]')
-                echo "Tags found in GHCR:"
-                echo "$tags"
-                echo "GHCR_TAGS=$tags" >> $GITHUB_ENV
 
           - name: Delete Old GHCR Tags
             env:
                 GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
             run: |
-                latest_tag=$(echo "${GHCR_TAGS}" | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | sort -rV | head -n 1)
-                for tag in ${GHCR_TAGS}; do
-                if [[ "$tag" != "$latest_tag" && "$tag" != "master" ]]; then
-                    echo "Deleting tag $tag from GHCR"
-                    version_id=$(gh api "repos/${{ github.repository_owner }}/packages/container/automatedgo/versions" | jq -r ".[] | select(.metadata.container.tags[] == \"$tag\") | .id")
-                    gh api --method DELETE "/user/packages/container/automatedgo/versions/$version_id"
-                fi
+                echo "Fetching GHCR tags..."
+                tags=$(gh api "repos/${{ github.repository_owner }}/packages/container/automatedgo/versions" | jq -r '.[].metadata.container.tags[]')
+                echo "Tags found in GHCR:"
+                echo "$tags"
+                latest_tag=$(echo "$tags" | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | sort -rV | head -n 1)
+                echo "Latest semantic version tag is $latest_tag"
+                for tag in $tags; do
+                    if [[ ! "$tag" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ || "$tag" != "$latest_tag" ]]; then
+                        echo "Deleting tag $tag from GHCR"
+                        version_id=$(gh api "repos/${{ github.repository_owner }}/packages/container/automatedgo/versions" | jq -r ".[] | select(.metadata.container.tags[] == \"$tag\") | .id")
+                        gh api --method DELETE "/user/packages/container/automatedgo/versions/$version_id"
+                    fi
                 done

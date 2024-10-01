@@ -1,6 +1,9 @@
 # Use the official Golang image
 FROM golang:1.23.1-alpine
 
+# Set author metadata using labels
+LABEL org.opencontainers.image.authors="https://github.com/Nicconike"
+
 # Set the Current Working Directory inside the container
 WORKDIR /automatedgo
 

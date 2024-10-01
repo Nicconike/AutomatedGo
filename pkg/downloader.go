@@ -112,13 +112,15 @@ func DownloadGo(version, targetOS, arch, path string, downloader FileDownloader,
 		extension = "zip"
 	}
 
-	filename := fmt.Sprintf("%s/go%s.%s-%s.%s", path, version, targetOS, arch, extension)
+	filename := fmt.Sprintf("go%s.%s-%s.%s", version, targetOS, arch, extension)
 	fmt.Printf("Fetching Official Checksum for %s\n", filename)
 
 	officialChecksum, err := checksum.GetOfficialChecksum(filename)
 	if err != nil {
 		fmt.Printf("Failed to get official checksum: %s\n", err)
 		return err
+	} else {
+		fmt.Printf("Successfully fetched official checksum: %s\n", officialChecksum)
 	}
 
 	url := fmt.Sprintf(DownloadURLFormat, version, targetOS, arch, extension)

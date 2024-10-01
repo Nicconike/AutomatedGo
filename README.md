@@ -41,7 +41,7 @@ go install github.com/Nicconike/AutomatedGo/cmd/automatedgo@v2.0.1
 ### Basic Usage
 
 ```sh
-AutomatedGo -file <path-to-file> -os <target-os> -arch <target-arch>
+automatedgo -file <path-to-file> -os <target-os> -arch <target-arch>
 ```
 
 This will check the specified file for the current Go version, compare it with the latest available version, and download the new version if an update is available.
@@ -62,25 +62,25 @@ This will check the specified file for the current Go version, compare it with t
 
 1. Get version from a Dockerfile:
 	```sh
-	AutomatedGo -f Dockerfile
+	automatedgo -f Dockerfile
 	```
 	![Dockerfile Example](https://github.com/Nicconike/AutomatedGo/blob/master/assets/dockerfile_example.png)
 
 2. Get version from go.mod:
 	```sh
-	AutomatedGo -f go.mod
+	automatedgo -f go.mod
 	```
 	![Go Mod Example](https://github.com/Nicconike/AutomatedGo/blob/master/assets/gomod_example.png)
 
 3. Specify version directly:
 	```sh
-	AutomatedGo -v 1.17
+	automatedgo -v 1.17
 	```
 	![Direct Example](https://github.com/Nicconike/AutomatedGo/blob/master/assets/direct_example.png)
 
 4. Download for a specific OS and architecture:
 	```sh
-	AutomatedGo -f version.json -os linux -arch arm64
+	automatedgo -f version.json -os linux -arch arm64
 	```
 	![JSON Example with OS](https://github.com/Nicconike/AutomatedGo/blob/master/assets/json_example_os_arch.png)
 
