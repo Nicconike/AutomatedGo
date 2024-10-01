@@ -53,7 +53,7 @@ jobs:
           - name: Update pkg.go.dev
             if: steps.semantic.outputs.version != ''
             run: |
-                go list -m github.com/Nicconike/AutomatedGo@${{ steps.semantic.outputs.version }}
+                go list -m github.com/Nicconike/AutomatedGo@v${{ steps.semantic.outputs.version }}
 
     goreleaser:
         name: GoReleaser
