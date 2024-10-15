@@ -6,7 +6,7 @@ import (
 	"os"
 	"testing"
 
-	"github.com/Nicconike/AutomatedGo/pkg"
+	"github.com/Nicconike/AutomatedGo/v2/pkg"
 )
 
 func createTestServer(status int, response string) *httptest.Server {
