@@ -10,8 +10,13 @@ updates:
       labels:
           - dependencies
           - dependabot
+          - go
       rebase-strategy: auto
       open-pull-requests-limit: 10
+      groups:
+          gomod:
+              patterns:
+                  - "*"
       reviewers:
           - "nicconike"
 
@@ -24,6 +29,7 @@ updates:
       labels:
           - dependencies
           - dependabot
+          - github_actions
       rebase-strategy: auto
       open-pull-requests-limit: 10
       reviewers:
@@ -32,3 +38,23 @@ updates:
           github-actions:
               patterns:
                   - "*"
+
+    - package-ecosystem: "docker"
+      directory: "/"
+      schedule:
+          interval: "weekly"
+      commit-message:
+          prefix: "build"
+          include: "scope"
+      labels:
+          - dependencies
+          - dependabot
+          - docker
+      rebase-strategy: auto
+      open-pull-requests-limit: 10
+      groups:
+          docker:
+              patterns:
+                  - "*"
+      reviewers:
+          - "nicconike"

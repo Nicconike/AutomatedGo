@@ -3,6 +3,9 @@ package tests
 import (
 	"bytes"
 	"errors"
+	"io"
+	"os"
+	"strings"
 	"testing"
 
 	"github.com/Nicconike/AutomatedGo/v2/pkg"
@@ -14,13 +17,13 @@ type MockVersionChecker struct {
 	mock.Mock
 }
 
-func (m *MockVersionChecker) GetCurrentVersion(versionFile, currentVersion string) (string, error) {
-	args := m.Called(versionFile, currentVersion)
+func (m *MockVersionChecker) GetLatestVersion() (string, error) {
+	args := m.Called()
 	return args.String(0), args.Error(1)
 }
 
-func (m *MockVersionChecker) GetLatestVersion() (string, error) {
-	args := m.Called()
+func (m *MockVersionChecker) GetCurrentVersion(versionFile, currentVersion string) (string, error) {
+	args := m.Called(versionFile, currentVersion)
 	return args.String(0), args.Error(1)
 }
 
@@ -29,8 +32,8 @@ func (m *MockVersionChecker) IsNewer(latestVersion, currentVersion string) bool 
 	return args.Bool(0)
 }
 
-func (m *MockVersionChecker) DownloadGo(version, os, arch, path string) error {
-	args := m.Called(version, os, arch, path)
+func (m *MockVersionChecker) DownloadGo(version, targetOS, arch, path string, input io.Reader, output io.Writer) error {
+	args := m.Called(version, targetOS, arch, path, input, output)
 	return args.Error(0)
 }
 
@@ -60,14 +63,20 @@ func TestRun(t *testing.T) {
 			currentVersion: "",
 			targetOS:       "linux",
 			targetArch:     "amd64",
-			input:          "yes\nyes\n", // Simulate user input for agreement and download path choice
-			expectedOutput: "Current version: 1.0.0\nLatest version: 1.1.0\nA newer version is available\nDo you want to download the latest version? (yes/no): Do you want to download it to the current working directory? (yes/no): ",
-			expectedError:  nil,
+			input:          "yes\n\n",
+			expectedOutput: "Current version: 1.0.0\n" +
+				"Latest version: 1.1.0\n" +
+				"A newer version is available\n" +
+				"Do you want to download the latest version? (yes/no): " +
+				"Enter the path where you want to download the file (press Enter for current directory, or 'cancel' to abort): " +
+				"Using current directory: {{.CurrentDir}}\n" +
+				"1.1.0 has been downloaded to {{.CurrentDir}}\n",
+			expectedError: nil,
 			mockSetup: func(m *MockVersionChecker) {
 				m.On("GetCurrentVersion", version, "").Return("1.0.0", nil)
 				m.On("GetLatestVersion").Return("1.1.0", nil)
 				m.On("IsNewer", "1.1.0", "1.0.0").Return(true)
-				m.On("DownloadGo", "1.1.0", "linux", "amd64", mock.Anything).Return(nil)
+				m.On("DownloadGo", "1.1.0", "linux", "amd64", mock.Anything, mock.Anything, mock.Anything).Return(nil)
 			},
 		},
 		{
@@ -116,7 +125,9 @@ func TestRun(t *testing.T) {
 				assert.EqualError(t, err, tt.expectedError.Error())
 			} else {
 				assert.NoError(t, err)
-				assert.Equal(t, tt.expectedOutput, output.String())
+				currentDir, _ := os.Getwd()
+				expectedOutput := strings.ReplaceAll(tt.expectedOutput, "{{.CurrentDir}}", currentDir)
+				assert.Equal(t, expectedOutput, output.String())
 			}
 
 			mockService.AssertExpectations(t)

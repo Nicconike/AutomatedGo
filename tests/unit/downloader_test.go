@@ -1,8 +1,9 @@
 package tests
 
 import (
-	"fmt"
-	"runtime"
+	"bytes"
+	"errors"
+	"strings"
 	"testing"
 
 	"github.com/Nicconike/AutomatedGo/v2/pkg"
@@ -46,35 +47,62 @@ func (m *MockChecksumCalculator) Calculate(filename string) (string, error) {
 }
 
 func TestDownloadGo(t *testing.T) {
+	const checksum = "checksum-value"
 	tests := []struct {
 		name          string
-		version       string
-		targetOS      string
-		arch          string
-		path          string
+		config        pkg.DownloadConfig
 		setupMocks    func(d *MockDownloader, r *MockRemover, c *MockChecksumCalculator)
 		expectedError error
 	}{
 		{
-			name:     "Successful download and checksum verification",
-			version:  "go1.16.5",
-			targetOS: runtime.GOOS,
-			arch:     runtime.GOARCH,
-			path:     "/tmp",
+			name: "Successful download and checksum verification",
+			config: pkg.DownloadConfig{
+				Version:  "1.16.5",
+				TargetOS: "linux",
+				Arch:     "amd64",
+				Path:     "",
+				Input:    strings.NewReader(""),
+				Output:   &bytes.Buffer{},
+			},
 			setupMocks: func(d *MockDownloader, r *MockRemover, c *MockChecksumCalculator) {
-				var extension string
-				if runtime.GOOS == "windows" {
-					extension = "zip"
-				} else {
-					extension = "tar.gz"
-				}
-				filename := fmt.Sprintf("/tmp/go1.16.5.%s-%s.%s", runtime.GOOS, runtime.GOARCH, extension)
-
-				c.On("GetOfficialChecksum", filename).Return("checksum-value", nil)
-				d.On("Download", fmt.Sprintf(pkg.DownloadURLFormat, "1.16.5", runtime.GOOS, runtime.GOARCH, extension), filename).Return(nil)
-				c.On("Calculate", filename).Return("checksum-value", nil)
+				c.On("GetOfficialChecksum", mock.Anything).Return(checksum, nil)
+				d.On("Download", mock.Anything, mock.Anything).Return(nil)
+				c.On("Calculate", mock.Anything).Return(checksum, nil)
 			},
 			expectedError: nil,
+		},
+		{
+			name: "Download with user input for OS and Arch",
+			config: pkg.DownloadConfig{
+				Version: "1.16.5",
+				Path:    "",
+				Input:   strings.NewReader("linux\namd64\n"),
+				Output:  &bytes.Buffer{},
+			},
+			setupMocks: func(d *MockDownloader, r *MockRemover, c *MockChecksumCalculator) {
+				c.On("GetOfficialChecksum", mock.Anything).Return(checksum, nil)
+				d.On("Download", mock.Anything, mock.Anything).Return(nil)
+				c.On("Calculate", mock.Anything).Return(checksum, nil)
+			},
+			expectedError: nil,
+		},
+		{
+			name: "Checksum mismatch",
+			config: pkg.DownloadConfig{
+				Version:  "1.16.5",
+				TargetOS: "linux",
+				Arch:     "amd64",
+				Path:     "",
+				Input:    strings.NewReader(""),
+				Output:   &bytes.Buffer{},
+			},
+			setupMocks: func(d *MockDownloader, r *MockRemover, c *MockChecksumCalculator) {
+				c.On("GetOfficialChecksum", mock.Anything).Return("correct-checksum", nil)
+				d.On("Download", mock.Anything, mock.Anything).Return(nil)
+				c.On("Calculate", mock.Anything).Return("incorrect-checksum", nil)
+				r.On("Remove", mock.Anything).Return(nil)
+			},
+			expectedError: errors.New("Checksum mismatch: expected correct-checksum, got incorrect-checksum for file go1.16.5.linux-amd64.tar.gz"),
 		},
 	}
 
@@ -86,7 +114,11 @@ func TestDownloadGo(t *testing.T) {
 
 			tt.setupMocks(mockDownloader, mockRemover, mockChecksumCalculator)
 
-			err := pkg.DownloadGo(tt.version, tt.targetOS, tt.arch, tt.path, mockDownloader, mockRemover, mockChecksumCalculator)
+			tt.config.Downloader = mockDownloader
+			tt.config.Remover = mockRemover
+			tt.config.Checksum = mockChecksumCalculator
+
+			err := pkg.DownloadGo(tt.config)
 
 			if tt.expectedError != nil {
 				assert.EqualError(t, err, tt.expectedError.Error())

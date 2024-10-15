@@ -7,3 +7,10 @@ output:
 linters:
     enable:
         - errcheck
+        - gofmt
+        - staticcheck
+        - go_vet
+        - gocyclo
+        - ineffassign
+        - license
+        - misspell

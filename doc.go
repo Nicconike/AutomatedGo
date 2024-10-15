@@ -92,6 +92,6 @@ Functions:
     Calculates the SHA256 checksum of the specified file.
 
 For more detailed information and advanced usage, refer to the README.md file
-and the package documentation at https://pkg.go.dev/github.com/Nicconike/AutomatedGo.
+and the package documentation at https://pkg.go.dev/github.com/Nicconike/AutomatedGo/v2.
 */
 package AutomatedGo

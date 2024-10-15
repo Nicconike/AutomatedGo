@@ -1,10 +1,12 @@
 package pkg
 
+import "io"
+
 type VersionChecker interface {
-	GetCurrentVersion(versionFile, currentVersion string) (string, error)
 	GetLatestVersion() (string, error)
+	GetCurrentVersion(versionFile, currentVersion string) (string, error)
 	IsNewer(latestVersion, currentVersion string) bool
-	DownloadGo(version, os, arch, path string) error
+	DownloadGo(version, targetOS, arch, path string, input io.Reader, output io.Writer) error
 }
 
 type FileDownloader interface {

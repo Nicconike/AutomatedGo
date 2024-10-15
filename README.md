@@ -7,7 +7,7 @@
 [![codecov](https://codecov.io/gh/Nicconike/AutomatedGo/graph/badge.svg?token=MPIX1QLEYJ)](https://codecov.io/gh/Nicconike/AutomatedGo)
 ![GitHub go.mod Go version](https://img.shields.io/github/go-mod/go-version/nicconike/AutomatedGo)
 ![GitHub Release](https://img.shields.io/github/v/release/nicconike/AutomatedGo)
-![Docker Image Size](https://img.shields.io/docker/image-size/nicconike/automatedgo?logo=docker&label=Docker%20Image)
+![Docker Image Size](https://img.shields.io/docker/image-size/nicconike/automatedgo/master?sort=semver&logo=docker&label=Docker%20Image)
 ![Docker Pulls](https://img.shields.io/docker/pulls/nicconike/automatedgo?logo=docker&label=Docker%20Pulls)
 [![Go Reference](https://pkg.go.dev/badge/github.com/Nicconike/AutomatedGo.svg)](https://pkg.go.dev/github.com/Nicconike/AutomatedGo)
 ![GitHub License](https://img.shields.io/github/license/nicconike/AutomatedGo)
@@ -28,7 +28,7 @@
 
 To add **AutomatedGo** in your Go project, use the following command:
 ```sh
-go get -u github.com/Nicconike/AutomatedGo
+go get -u github.com/Nicconike/AutomatedGo/v2
 ```
 
 To install **AutomatedGo** as a Go binary, use the following command:
@@ -49,7 +49,7 @@ This will check the specified file for the current Go version, compare it with t
 > [!NOTE]
 > If you don't specify the `os` and `arch` type, the tool will download the latest version for your current operating system and architecture.
 >
-> Minimum required Go version: 1.18
+> Minimum required Go version: 1.22
 
 ### Command-line Options
 

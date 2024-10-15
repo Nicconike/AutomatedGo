@@ -2,6 +2,7 @@ name: Publish Packages
 
 on:
     push:
+        branches: master
         paths:
             - '.github/workflows/docker.yml'
         tags:
@@ -34,7 +35,7 @@ jobs:
             # https://github.com/sigstore/cosign-installer
           - name: Install cosign
             if: github.event_name != 'pull_request'
-            uses: sigstore/cosign-installer@v3.7.0
+            uses: sigstore/cosign-installer@v3.6.0
             with:
                 cosign-release: 'v2.4.0'
 
@@ -62,10 +63,10 @@ jobs:
                     ${{ vars.DOCKER_USERNAME }}/automatedgo
                     ghcr.io/${{ github.repository_owner }}/AutomatedGo
                 tags: |
+                    type=ref,event=branch
                     type=semver,pattern={{version}}
                     type=semver,pattern={{major}}.{{minor}}
                     type=semver,pattern={{major}}.{{minor}}.{{patch}}
-                skip-sha: true
 
           - name: Build & Push Docker Images
             id: push
@@ -98,8 +99,26 @@ jobs:
                 subject-digest: ${{ steps.push.outputs.digest }}
                 push-to-registry: true
 
+          - name: Docker Scout Scan
+            uses: docker/scout-action@v1.14.0
+            with:
+                command: quickview, cves
+                image: ${{ vars.DOCKER_USERNAME }}/automatedgo:${{ steps.meta.outputs.tags }}
+                to: ${{ vars.DOCKER_USERNAME }}/automatedgo:master
+                write-comment: true
+                github-token: ${{ secrets.GITHUB_TOKEN }}
+                sarif-file: docker-scout-results.sarif
+
+          - name: Upload Scout Scan Results
+            if: always()
+            uses: actions/upload-artifact@v4
+            with:
+                name: docker-scout-results
+                path: docker-scout-results.sarif
+
     cleanup:
         runs-on: ubuntu-latest
+        name: Cleanup
         needs: packages
         permissions:
             contents: read
@@ -127,13 +146,13 @@ jobs:
                 tags=$(curl -s "https://hub.docker.com/v2/repositories/${{ vars.DOCKER_USERNAME }}/automatedgo/tags" | jq -r '.results[].name')
                 echo "Tags found in Docker Hub:"
                 echo "$tags"
-                latest_tag=$(echo "$tags" | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | sort -rV | head -n 1)
-                echo "Latest semantic version tag is $latest_tag"
                 for tag in $tags; do
-                    if [[ ! "$tag" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ || "$tag" != "$latest_tag" ]]; then
+                    if [[ "$tag" != "master" && ! "$tag" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
                         echo "Deleting tag $tag from Docker Hub"
                         curl -X DELETE "https://hub.docker.com/v2/repositories/${{ vars.DOCKER_USERNAME }}/automatedgo/tags/$tag/" \
                         -u "${{ vars.DOCKER_USERNAME }}:${{ secrets.DOCKER_TOKEN }}"
+                    else
+                        echo "Keeping tag $tag"
                     fi
                 done
 
@@ -145,12 +164,12 @@ jobs:
                 tags=$(gh api "repos/${{ github.repository_owner }}/packages/container/automatedgo/versions" | jq -r '.[].metadata.container.tags[]')
                 echo "Tags found in GHCR:"
                 echo "$tags"
-                latest_tag=$(echo "$tags" | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | sort -rV | head -n 1)
-                echo "Latest semantic version tag is $latest_tag"
                 for tag in $tags; do
-                    if [[ ! "$tag" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ || "$tag" != "$latest_tag" ]]; then
+                    if [[ "$tag" != "master" && ! "$tag" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
                         echo "Deleting tag $tag from GHCR"
                         version_id=$(gh api "repos/${{ github.repository_owner }}/packages/container/automatedgo/versions" | jq -r ".[] | select(.metadata.container.tags[] == \"$tag\") | .id")
                         gh api --method DELETE "/user/packages/container/automatedgo/versions/$version_id"
+                    else
+                        echo "Keeping tag $tag"
                     fi
                 done

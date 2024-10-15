@@ -5,6 +5,59 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html) and [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/).
 
+## 2.0.3 (2024-10-01)
+
+#### 🐞 Bug Fixes
+
+* update import paths for the Go code (49eb11f0)
+
+#### 🔁 CI
+
+* update index pkg.go.dev step (4857baec)
+
+## 2.0.2 (2024-10-01)
+
+#### 🐞 Bug Fixes
+
+* update downloader code to correctly compile the filename (becbc2dc)
+
+#### 📄 Documentation
+
+* update readme (1d918457)
+
+#### 🔎 Tests
+
+* debug extracted tags & cleanup (ce8526b7)
+* err check (eee63198)
+
+#### 🔀 Code Refactoring
+
+* add service.go (311148ad)
+
+#### 🚧 Chores
+
+* **deps:** bump github.com/schollz/progressbar/v3 (#6) (e7cd015a)
+* **deps:** bump github.com/stretchr/testify from 1.5.1 to 1.9.0 (#5) (f5b5f3b9)
+
+#### 🔁 CI
+
+* fix credentials usage (b7f4ecfd)
+* Update docker.yml (986e999c)
+* update metadata tags (535f013a)
+* update docker metadata tags (6b256d12)
+
+## What's Changed
+* **Update module path to v2 and fix import statements for v2.0.2**
+
+## 2.0.1 (2024-09-19)
+
+#### 🐞 Bug Fixes
+
+* correct the unit tests code (203b7b7d)
+
+## What's Changed
+* **Update module path to v2 and fix import statements for v2.0.1**
+
 ## 2.0.0 (2024-09-19)
 
 #### 📣 Breaking Changes
@@ -43,6 +96,14 @@ BREAKING CHANGE: Interfaces Implementation and now prompt for download with path
 * Add docker CI (4c81a0c2)
 * update codeql for go (ad7cdb2b)
 * Create codeql.yml (7682fcf1)
+
+## What's Changed
+* **Update module path to v2 and fix import statements for v2.0.0**
+* ci: bump golangci/golangci-lint-action from 3 to 6 in the github-actions group by @dependabot in https://github.com/Nicconike/AutomatedGo/pull/3
+* chore(deps): bump github.com/schollz/progressbar/v3 from 3.14.6 to 3.15.0 by @dependabot in https://github.com/Nicconike/AutomatedGo/pull/4
+
+
+**Full Changelog**: https://github.com/Nicconike/AutomatedGo/compare/v1.2.0...v2.0.0
 
 
 ## 1.2.0 (2024-09-12)

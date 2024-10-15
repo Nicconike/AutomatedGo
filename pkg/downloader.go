@@ -6,7 +6,6 @@ import (
 	"io"
 	"net/http"
 	"os"
-	"runtime"
 	"strings"
 
 	"github.com/schollz/progressbar/v3"
@@ -70,77 +69,81 @@ func (r *DefaultRemover) Remove(filename string) error {
 	return os.Remove(filename)
 }
 
-func DownloadGo(version, targetOS, arch, path string, downloader FileDownloader, remover FileRemover, checksum ChecksumCalculator) error {
-	version = strings.TrimPrefix(version, "go")
-	fmt.Printf("Preparing to download Go version %s\n", version)
+type DownloadConfig struct {
+	Version    string
+	TargetOS   string
+	Arch       string
+	Path       string
+	Downloader FileDownloader
+	Remover    FileRemover
+	Checksum   ChecksumCalculator
+	Input      io.Reader
+	Output     io.Writer
+}
 
-	if targetOS == "" {
-		targetOS = runtime.GOOS
-		fmt.Printf("Target OS not specified, using current OS: %s\n", targetOS)
+func DownloadGo(config DownloadConfig) error {
+	version := strings.TrimPrefix(config.Version, "go")
+	fmt.Fprintf(config.Output, "Preparing to download Go version %s\n", version)
+
+	if config.TargetOS == "" {
+		fmt.Fprint(config.Output, "Enter target OS (windows, linux, darwin): ")
+		fmt.Fscan(config.Input, &config.TargetOS)
 	}
 
-	validArchs, ok := validPlatforms[targetOS]
+	validArchs, ok := validPlatforms[config.TargetOS]
 	if !ok {
-		return fmt.Errorf("unsupported operating system: %s", targetOS)
+		return fmt.Errorf("unsupported operating system: %s", config.TargetOS)
 	}
 
-	if arch == "" {
-		switch targetOS {
-		case "windows", "darwin":
-			arch = "amd64"
-		case "linux":
-			arch = runtime.GOARCH
-		default:
-			return fmt.Errorf("unsupported operating system: %s", targetOS)
-		}
-		fmt.Printf("Architecture not specified, using default: %s\n", arch)
+	if config.Arch == "" {
+		fmt.Fprintf(config.Output, "Enter target architecture %v: ", validArchs)
+		fmt.Fscan(config.Input, &config.Arch)
 	}
 
 	valid := false
 	for _, validArch := range validArchs {
-		if arch == validArch {
+		if config.Arch == validArch {
 			valid = true
 			break
 		}
 	}
 	if !valid {
-		return fmt.Errorf("unsupported architecture %s for OS %s", arch, targetOS)
+		return fmt.Errorf("unsupported architecture %s for OS %s", config.Arch, config.TargetOS)
 	}
 
 	extension := "tar.gz"
-	if targetOS == "windows" {
+	if config.TargetOS == "windows" {
 		extension = "zip"
 	}
 
-	filename := fmt.Sprintf("go%s.%s-%s.%s", version, targetOS, arch, extension)
-	fmt.Printf("Fetching Official Checksum for %s\n", filename)
+	filename := fmt.Sprintf("go%s.%s-%s.%s", version, config.TargetOS, config.Arch, extension)
+	fmt.Fprintf(config.Output, "Fetching Official Checksum for %s\n", filename)
 
-	officialChecksum, err := checksum.GetOfficialChecksum(filename)
+	officialChecksum, err := config.Checksum.GetOfficialChecksum(filename)
 	if err != nil {
-		fmt.Printf("Failed to get official checksum: %s\n", err)
-		return err
-	} else {
-		fmt.Printf("Successfully fetched official checksum: %s\n", officialChecksum)
-	}
-
-	url := fmt.Sprintf(DownloadURLFormat, version, targetOS, arch, extension)
-	err = downloader.Download(url, filename)
-	if err != nil {
-		fmt.Printf("Error downloading file: %s\n", err)
+		fmt.Fprintf(config.Output, "Failed to get official checksum: %s\n", err)
 		return err
 	}
+	fmt.Fprintf(config.Output, "Successfully fetched official checksum: %s\n", officialChecksum)
 
-	fmt.Printf("\nCalculating checksum for %s\n", filename)
-	calculatedChecksum, err := checksum.Calculate(filename)
+	url := fmt.Sprintf(DownloadURLFormat, version, config.TargetOS, config.Arch, extension)
+	err = config.Downloader.Download(url, filename)
+	if err != nil {
+		fmt.Fprintf(config.Output, "Error downloading file: %s\n", err)
+		return err
+	}
+
+	fmt.Fprintf(config.Output, "\nCalculating checksum for %s\n", filename)
+	calculatedChecksum, err := config.Checksum.Calculate(filename)
 	if err != nil || calculatedChecksum != officialChecksum {
-		if removeErr := remover.Remove(filename); removeErr != nil {
-			fmt.Printf("Error removing file %s after failed checksum calculation: %s\n", filename, removeErr)
+		if removeErr := config.Remover.Remove(filename); removeErr != nil {
+			fmt.Fprintf(config.Output, "Error removing file %s after failed checksum calculation: %s\n", filename, removeErr)
 		}
 		errMsg := fmt.Sprintf("Checksum mismatch: expected %s, got %s for file %s", officialChecksum, calculatedChecksum, filename)
-		fmt.Println(errMsg)
+		fmt.Fprintln(config.Output, errMsg)
 		return errors.New(errMsg)
 	}
 
-	fmt.Println("Checksum verification successful!")
+	fmt.Fprintln(config.Output, "Checksum verification successful!")
 	return nil
 }
