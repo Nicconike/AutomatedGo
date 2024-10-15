@@ -1,3 +1,4 @@
+version: 2
 project_name: AutomatedGo
 
 builds:
@@ -32,7 +33,7 @@ release:
     footer: |
         ## How to install
         ```
-        go install github.com/Nicconike/AutomatedGo/v2/cmd/automatedgo@v2.0.3
+        go install github.com/Nicconike/AutomatedGo/v2/cmd/automatedgo@v2.1.0
         ```
 
         For more information, please refer to the [documentation](https://github.com/Nicconike/AutomatedGo#readme).

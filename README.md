@@ -9,7 +9,7 @@
 ![GitHub Release](https://img.shields.io/github/v/release/nicconike/AutomatedGo)
 ![Docker Image Size](https://img.shields.io/docker/image-size/nicconike/automatedgo/master?sort=semver&logo=docker&label=Docker%20Image)
 ![Docker Pulls](https://img.shields.io/docker/pulls/nicconike/automatedgo?logo=docker&label=Docker%20Pulls)
-[![Go Reference](https://pkg.go.dev/badge/github.com/Nicconike/AutomatedGo.svg)](https://pkg.go.dev/github.com/Nicconike/AutomatedGo)
+[![Go Reference](https://pkg.go.dev/badge/github.com/Nicconike/AutomatedGo/v2.svg)](https://pkg.go.dev/github.com/Nicconike/AutomatedGo/v2)
 ![GitHub License](https://img.shields.io/github/license/nicconike/AutomatedGo)
 [![wakatime](https://wakatime.com/badge/user/018e538b-3f55-4e8e-95fa-6c3225418eed/project/148b8322-28da-4cf4-85c2-bb20c2fe1295.svg)](https://wakatime.com/badge/user/018e538b-3f55-4e8e-95fa-6c3225418eed/project/148b8322-28da-4cf4-85c2-bb20c2fe1295)
 [![Visitor Badge](https://badges.pufler.dev/visits/nicconike/AutomatedGo)](https://badges.pufler.dev)
@@ -33,7 +33,7 @@ go get -u github.com/Nicconike/AutomatedGo/v2
 
 To install **AutomatedGo** as a Go binary, use the following command:
 ```sh
-go install github.com/Nicconike/AutomatedGo/v2/cmd/automatedgo@v2.0.3
+go install github.com/Nicconike/AutomatedGo/v2/cmd/automatedgo@v2.1.0
 ```
 
 ## Usage

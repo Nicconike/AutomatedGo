@@ -5,6 +5,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html) and [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/).
 
+## 2.1.0 (2024-10-15)
+
+#### 🎁 Feature
+
+* add prompts for os & arch (c47987b3)
+
+#### 🚧 Chores
+
+* **deps:** bump github.com/schollz/progressbar/v3 (#8) (e118eaac)
+* update workflow step (e37f10f7)
+
+#### 🔁 CI
+
+* bump sigstore/cosign-installer in the github-actions group (#9) (27563541)
+* bump codecov/codecov-action in the github-actions group (#7) (89618ab4)
+
 ## 2.0.3 (2024-10-01)
 
 #### 🐞 Bug Fixes
