@@ -3,7 +3,7 @@ module github.com/Nicconike/AutomatedGo/v2
 go 1.18
 
 require (
-	github.com/schollz/progressbar/v3 v3.16.0
+	github.com/schollz/progressbar/v3 v3.16.1
 	github.com/stretchr/testify v1.9.0
 )
 
