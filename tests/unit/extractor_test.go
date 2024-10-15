@@ -5,7 +5,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/Nicconike/AutomatedGo/pkg"
+	"github.com/Nicconike/AutomatedGo/v2/pkg"
 )
 
 func runGetCurrentVersionTest(t *testing.T, filePath, directVersion, expectedResult string, expectError bool) {

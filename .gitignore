@@ -22,3 +22,7 @@ go.work
 go.work.sum
 
 dist/
+
+# Environment Variables
+.env
+env
