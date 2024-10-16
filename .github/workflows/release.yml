@@ -2,6 +2,8 @@ name: Release
 on:
     push:
         branches: master
+        tags:
+            - '*'
         paths:
             - '.github/workflows/release.yml'
             - 'go.mod'
@@ -9,8 +11,8 @@ on:
             - 'cmd/automatedgo/*'
 
 jobs:
-    semantic-release:
-        name: Semantic Release
+    release:
+        name: Release
         runs-on: ubuntu-latest
         if: |
             github.actor != 'dependabot[bot]' &&
@@ -20,8 +22,6 @@ jobs:
             contents: write
             packages: write
             id-token: write
-        outputs:
-            new_release_version: ${{ steps.semantic.outputs.version }}
         steps:
           - name: GitHub App Token
             uses: actions/create-github-app-token@v1
@@ -40,57 +40,47 @@ jobs:
             uses: actions/setup-go@v5
             with:
                 go-version: "1.23.x"
+
+            # Install the cosign tool except on PR
+            # https://github.com/sigstore/cosign-installer
+          - name: Install Cosign
+            if: github.event_name != 'pull_request'
+            uses: sigstore/cosign-installer@v3.7.0
+            with:
+                cosign-release: 'v2.4.0'
+
+          - name: Login to Docker Hub
+            uses: docker/login-action@v3
+            with:
+                username: ${{ vars.DOCKER_USERNAME }}
+                password: ${{ secrets.DOCKER_TOKEN }}
+
+          - name: Login to GitHub Container Registry
+            uses: docker/login-action@v3
+            with:
+                registry: ghcr.io
+                username: ${{ github.actor }}
+                password: ${{ secrets.GITHUB_TOKEN }}
 
           - name: Semantic Release
             uses: go-semantic-release/action@v1
             id: semantic
             with:
                 github-token: ${{ steps.app-token.outputs.token }}
-                changelog-file: CHANGELOG.md
-                update-file: go.mod
-                changelog-generator-opt: "emojis=true"
 
-          - name: Update pkg.go.dev
-            if: steps.semantic.outputs.version != ''
-            run: |
-                go list -m github.com/Nicconike/AutomatedGo/v2@v${{ steps.semantic.outputs.version }}
-
-    goreleaser:
-        name: GoReleaser
-        needs: semantic-release
-        runs-on: ubuntu-latest
-        if: needs.semantic-release.outputs.new_release_version != ''
-        permissions:
-            contents: write
-            packages: write
-        steps:
-          - name: GitHub App Token
-            uses: actions/create-github-app-token@v1
-            id: app-token
-            with:
-                app-id: ${{ secrets.APP_ID }}
-                private-key: ${{ secrets.APP_PRIVATE_KEY }}
-
-          - name: Checkout Repo
-            uses: actions/checkout@v4
-            with:
-                fetch-depth: 0
-                token: ${{ steps.app-token.outputs.token }}
-
-          - name: Fetch latest tags
-            run: git fetch --force --tags
-
-          - name: Setup Go
-            uses: actions/setup-go@v5
-            with:
-                go-version: "1.23.x"
-
-          - name: Run GoReleaser
+          - name: GoReleaser
             uses: goreleaser/goreleaser-action@v6
+            if: steps.semantic.outputs.version != ''
             with:
                 distribution: goreleaser
                 version: '~> v2'
                 args: release --clean
             env:
                 GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
-                GORELEASER_CURRENT_TAG: ${{ needs.semantic-release.outputs.new_release_version }}
+                DOCKER_USERNAME: ${{ vars.DOCKER_USERNAME }}
+                GORELEASER_CURRENT_TAG: ${{ needs.semantic.outputs.version }}
+
+          - name: Update pkg.go.dev
+            if: steps.semantic.outputs.version != ''
+            run: |
+                go list -m github.com/Nicconike/AutomatedGo/v2@v${{ steps.semantic.outputs.version }}

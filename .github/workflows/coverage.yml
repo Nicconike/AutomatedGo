@@ -17,6 +17,9 @@ jobs:
             github.actor != 'dependabot[bot]' &&
             github.actor != 'github-actions[bot]' &&
             github.actor != 'protected-auto-commits[bot]'
+        permissions:
+            contents: read
+            pull-requests: write
         steps:
           - name: Checkout Repo
             uses: actions/checkout@v4

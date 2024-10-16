@@ -48,8 +48,6 @@ This will check the specified file for the current Go version, compare it with t
 
 > [!NOTE]
 > If you don't specify the `os` and `arch` type, the tool will download the latest version for your current operating system and architecture.
->
-> Minimum required Go version: 1.22
 
 ### Command-line Options
 
@@ -84,7 +82,7 @@ This will check the specified file for the current Go version, compare it with t
 	```
 	![JSON Example with OS](https://github.com/Nicconike/AutomatedGo/blob/master/assets/json_example_os_arch.png)
 
-> Also, checkout a real example in the [test-AutomatedGo](https://github.com/Nicconike/test-AutomatedGo) repository where this tool is used to check and update the Go version. And then upload the downloaded Go version to Github using Git LFS.
+> Also, checkout the example implemntation for AutomatedGo at [test-AutomatedGo](https://github.com/Nicconike/test-AutomatedGo) repository.
 
 ## Supported File Types
 
