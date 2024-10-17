@@ -3,8 +3,11 @@ package tests
 import (
 	"bytes"
 	"errors"
+	"log"
 	"net/http"
 	"net/http/httptest"
+	"os"
+	"path/filepath"
 	"strings"
 	"testing"
 
@@ -33,6 +36,35 @@ func (m *MockRemover) Remove(filename string) error {
 	return args.Error(0)
 }
 
+func TestRemove(t *testing.T) {
+	t.Run("Remove existing file", func(t *testing.T) {
+		// Create a temporary file
+		tmpDir := t.TempDir()
+		tmpFile := filepath.Join(tmpDir, "testfile.txt")
+		file, err := os.Create(tmpFile)
+		assert.NoError(t, err)
+		file.Close() // Close the file after creation
+
+		remover := &pkg.DefaultRemover{}
+		err = remover.Remove(tmpFile)
+		assert.NoError(t, err)
+
+		// Check that the file no longer exists
+		_, err = os.Stat(tmpFile)
+		assert.True(t, os.IsNotExist(err))
+	})
+
+	t.Run("Remove non-existent file", func(t *testing.T) {
+		filename := filepath.Join(t.TempDir(), "non_existent_file.txt")
+
+		remover := &pkg.DefaultRemover{}
+		err := remover.Remove(filename)
+
+		assert.Error(t, err)
+		assert.True(t, os.IsNotExist(err))
+	})
+}
+
 func TestDownload(t *testing.T) {
 	tests := []struct {
 		name           string
@@ -43,7 +75,10 @@ func TestDownload(t *testing.T) {
 			name: "Successful download",
 			serverResponse: func(w http.ResponseWriter, r *http.Request) {
 				w.WriteHeader(http.StatusOK)
-				w.Write([]byte("file content"))
+				_, err := w.Write([]byte("file content"))
+				if err != nil {
+					log.Printf("Failed to write response: %v", err)
+				}
 			},
 			expectedError: "",
 		},

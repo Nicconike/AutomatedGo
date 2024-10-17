@@ -39,7 +39,11 @@ func createServerFunc(filename, sha256 string) func(http.ResponseWriter, *http.R
 
 func assertChecksumResult(t *testing.T, got string, err error, want string, wantErr string) {
 	if wantErr != "" {
-		if err == nil || !strings.Contains(err.Error(), wantErr) {
+		if err == nil {
+			t.Errorf("GetOfficialChecksum() error = nil, wantErr %v", wantErr)
+			return
+		}
+		if !strings.Contains(err.Error(), wantErr) {
 			t.Errorf("GetOfficialChecksum() error = %v, wantErr %v", err, wantErr)
 		}
 		return
@@ -76,6 +80,25 @@ func TestGetOfficialChecksum(t *testing.T) {
 			filename:   "invalid.tar.gz",
 			want:       "",
 			wantErr:    "checksum not found for invalid.tar.gz",
+		},
+		{
+			name: "Network error",
+			serverFunc: func(w http.ResponseWriter, r *http.Request) {
+				hj, ok := w.(http.Hijacker)
+				if !ok {
+					http.Error(w, "Server doesn't support hijacking", http.StatusInternalServerError)
+					return
+				}
+				conn, _, err := hj.Hijack()
+				if err != nil {
+					http.Error(w, err.Error(), http.StatusInternalServerError)
+					return
+				}
+				conn.Close()
+			},
+			filename: goBinary,
+			want:     "",
+			wantErr:  "failed to fetch Go releases",
 		},
 		{
 			name: "HTTP failure",

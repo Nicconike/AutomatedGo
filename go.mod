@@ -1,6 +1,6 @@
 module github.com/Nicconike/AutomatedGo/v2
 
-go 1.22
+go 1.23
 
 require (
 	github.com/schollz/progressbar/v3 v3.16.1

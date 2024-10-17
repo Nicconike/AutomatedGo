@@ -16,7 +16,7 @@ func confirmDownload(input io.Reader, output io.Writer) bool {
 	return response == "yes"
 }
 
-func getDownloadPath(input io.Reader, output io.Writer) string {
+func GetDownloadPath(input io.Reader, output io.Writer) string {
 	reader := bufio.NewReader(input)
 	for {
 		fmt.Fprint(output, "Enter the path where you want to download the file (press Enter for current directory, or 'cancel' to abort): ")
@@ -66,7 +66,7 @@ func Run(service VersionChecker, versionFile, currentVersion, targetOS, targetAr
 	if service.IsNewer(latestVersion, cv) {
 		fmt.Fprintln(output, "A newer version is available")
 		if confirmDownload(input, output) {
-			downloadPath := getDownloadPath(input, output)
+			downloadPath := GetDownloadPath(input, output)
 			if downloadPath == "" {
 				fmt.Fprintln(output, "Download cancelled by user")
 				return nil

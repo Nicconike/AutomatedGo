@@ -46,7 +46,7 @@ automatedgo -file <path-to-file> -os <target-os> -arch <target-arch>
 This will check the specified file for the current Go version, compare it with the latest available version, and download the new version if an update is available.
 
 > [!NOTE]
-> If you don't specify the `os` and `arch` type, the tool will download the latest version for your current operating system and architecture.
+> If you don't specify the `os` and `arch` type, the tool will download the latest version by detecting your current operating system and architecture.
 
 ### Command-line Options
 
@@ -57,25 +57,25 @@ This will check the specified file for the current Go version, compare it with t
 
 ### Examples
 
-1. Get version from a Dockerfile:
+1. Download latest version from Dockerfile:
 	```sh
 	automatedgo -f Dockerfile
 	```
 	![Dockerfile Example](https://github.com/Nicconike/AutomatedGo/blob/master/assets/dockerfile_example.png)
 
-2. Get version from go.mod:
+2. Download latest version from go.mod:
 	```sh
 	automatedgo -f go.mod
 	```
 	![Go Mod Example](https://github.com/Nicconike/AutomatedGo/blob/master/assets/gomod_example.png)
 
-3. Specify version directly:
+3. Download latest version by just specifying version directly as argument:
 	```sh
 	automatedgo -v 1.18
 	```
 	![Direct Example](https://github.com/Nicconike/AutomatedGo/blob/master/assets/direct_example.png)
 
-4. Download for a specific OS and architecture:
+4. Download latest version from JSON for a specific OS and architecture:
 	```sh
 	automatedgo -f version.json -os linux -arch arm64
 	```
@@ -98,7 +98,7 @@ Missing any file types you expected to see? Let me know via [discussions](https:
 
 ## Contributing
 
-Star⭐ and Fork🍴 the Repo to start with your feature request(or bug) and experiment with the project to implement whatever Idea you might have and sent the Pull Request through 🤙
+Star⭐ and Fork🍴 the repo to support and start with your feature request(or bug) and experiment with the project to implement whatever new idea you might have and send the pull request through 🤙
 
 Please refer [Contributing.md](https://github.com/Nicconike/AutomatedGo/blob/master/.github/CONTRIBUTING.md) to get to know how to contribute to this project.
 And thank you for considering to contribute.

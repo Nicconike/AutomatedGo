@@ -12,3 +12,6 @@ linters:
         - gocyclo
         - ineffassign
         - misspell
+linters-settings:
+    gofmt:
+        simplify: true

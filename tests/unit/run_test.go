@@ -3,6 +3,7 @@ package tests
 import (
 	"bytes"
 	"errors"
+	"fmt"
 	"io"
 	"os"
 	"strings"
@@ -35,6 +36,43 @@ func (m *MockVersionChecker) IsNewer(latestVersion, currentVersion string) bool 
 func (m *MockVersionChecker) DownloadGo(version, targetOS, arch, path string, input io.Reader, output io.Writer) error {
 	args := m.Called(version, targetOS, arch, path, input, output)
 	return args.Error(0)
+}
+
+// Helper function to simulate user input and capture output
+func simulateGetDownloadPath(input string) (string, string) {
+	in := strings.NewReader(input)
+	out := new(bytes.Buffer)
+	path := pkg.GetDownloadPath(in, out)
+	return path, out.String()
+}
+
+func TestGetDownloadPath(t *testing.T) {
+	t.Run("Cancel input", func(t *testing.T) {
+		path, output := simulateGetDownloadPath("cancel\n")
+		assert.Equal(t, "", path)
+		assert.Contains(t, output, "Enter the path where you want to download the file")
+	})
+
+	t.Run("Empty input uses current directory", func(t *testing.T) {
+		currentDir, _ := os.Getwd()
+		path, output := simulateGetDownloadPath("\n")
+		assert.Equal(t, currentDir, path)
+		assert.Contains(t, output, fmt.Sprintf("Using current directory: %s", currentDir))
+	})
+
+	// t.Run("Non-existent path", func(t *testing.T) {
+	// 	nonExistentPath := "/this/path/does/not/exist"
+	// 	path, output := simulateGetDownloadPath(nonExistentPath + "\n")
+	// 	assert.Equal(t, "", path)
+	// 	assert.Contains(t, output, "Specified path does not exist. Please try again.")
+	// })
+
+	t.Run("Valid path", func(t *testing.T) {
+		tempDir := os.TempDir()
+		path, output := simulateGetDownloadPath(tempDir + "\n")
+		assert.Equal(t, tempDir, path)
+		assert.NotContains(t, output, "Specified path does not exist. Please try again")
+	})
 }
 
 func TestRun(t *testing.T) {
