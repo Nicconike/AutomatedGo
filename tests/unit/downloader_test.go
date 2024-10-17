@@ -3,6 +3,8 @@ package tests
 import (
 	"bytes"
 	"errors"
+	"net/http"
+	"net/http/httptest"
 	"strings"
 	"testing"
 
@@ -29,6 +31,59 @@ type MockRemover struct {
 func (m *MockRemover) Remove(filename string) error {
 	args := m.Called(filename)
 	return args.Error(0)
+}
+
+func TestDownload(t *testing.T) {
+	tests := []struct {
+		name           string
+		serverResponse func(w http.ResponseWriter, r *http.Request)
+		expectedError  string
+	}{
+		{
+			name: "Successful download",
+			serverResponse: func(w http.ResponseWriter, r *http.Request) {
+				w.WriteHeader(http.StatusOK)
+				w.Write([]byte("file content"))
+			},
+			expectedError: "",
+		},
+		{
+			name: "Server error",
+			serverResponse: func(w http.ResponseWriter, r *http.Request) {
+				w.WriteHeader(http.StatusInternalServerError)
+			},
+			expectedError: "unexpected status code: 500",
+		},
+		{
+			name: "Not Found error",
+			serverResponse: func(w http.ResponseWriter, r *http.Request) {
+				w.WriteHeader(http.StatusNotFound)
+			},
+			expectedError: "unexpected status code: 404",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			// Create a test server
+			server := httptest.NewServer(http.HandlerFunc(tt.serverResponse))
+			defer server.Close()
+
+			// Create a DefaultDownloader
+			downloader := &pkg.DefaultDownloader{}
+
+			// Perform the download
+			err := downloader.Download(server.URL, "test.file")
+
+			// Check the error
+			if tt.expectedError != "" {
+				assert.Error(t, err)
+				assert.Contains(t, err.Error(), tt.expectedError)
+			} else {
+				assert.NoError(t, err)
+			}
+		})
+	}
 }
 
 // MockChecksumCalculator is a mock implementation of the ChecksumCalculator interface
@@ -74,7 +129,7 @@ func TestDownloadGo(t *testing.T) {
 		{
 			name: "Download with user input for OS and Arch",
 			config: pkg.DownloadConfig{
-				Version: "1.16.5",
+				Version: "1.18.5",
 				Path:    "",
 				Input:   strings.NewReader("linux\namd64\n"),
 				Output:  &bytes.Buffer{},

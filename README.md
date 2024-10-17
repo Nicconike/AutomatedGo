@@ -1,6 +1,5 @@
 # AutomatedGo🐿️
 [![Release](https://github.com/Nicconike/AutomatedGo/actions/workflows/release.yml/badge.svg)](https://github.com/Nicconike/AutomatedGo/actions/workflows/release.yml)
-[![Publish Packages](https://github.com/Nicconike/AutomatedGo/actions/workflows/docker.yml/badge.svg)](https://github.com/Nicconike/AutomatedGo/actions/workflows/docker.yml)
 [![CodeQL](https://github.com/Nicconike/AutomatedGo/actions/workflows/codeql.yml/badge.svg)](https://github.com/Nicconike/AutomatedGo/actions/workflows/codeql.yml)
 [![Code Coverage](https://github.com/Nicconike/AutomatedGo/actions/workflows/coverage.yml/badge.svg)](https://github.com/Nicconike/AutomatedGo/actions/workflows/coverage.yml)
 [![Go Report Card](https://goreportcard.com/badge/github.com/Nicconike/AutomatedGo)](https://goreportcard.com/report/github.com/Nicconike/AutomatedGo)
@@ -82,7 +81,7 @@ This will check the specified file for the current Go version, compare it with t
 	```
 	![JSON Example with OS](https://github.com/Nicconike/AutomatedGo/blob/master/assets/json_example_os_arch.png)
 
-> Also, checkout the example implemntation for AutomatedGo at [test-AutomatedGo](https://github.com/Nicconike/test-AutomatedGo) repository.
+> Also, checkout the example implementation for AutomatedGo at [test-AutomatedGo](https://github.com/Nicconike/test-AutomatedGo) repository.
 
 ## Supported File Types
 
