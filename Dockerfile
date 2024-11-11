@@ -1,5 +1,5 @@
 # Use the official Golang image
-FROM golang:1.23.2-alpine
+FROM golang:1.23.3-alpine
 
 # Set author metadata using labels
 LABEL org.opencontainers.image.authors="https://github.com/Nicconike"
