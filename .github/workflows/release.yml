@@ -24,7 +24,7 @@ jobs:
             id-token: write
         steps:
           - name: GitHub App Token
-            uses: actions/create-github-app-token@v1
+            uses: actions/create-github-app-token@v2
             id: app-token
             with:
                 app-id: ${{ secrets.APP_ID }}
@@ -45,7 +45,7 @@ jobs:
             # https://github.com/sigstore/cosign-installer
           - name: Install Cosign
             if: github.event_name != 'pull_request'
-            uses: sigstore/cosign-installer@v3.7.0
+            uses: sigstore/cosign-installer@v3.8.2
             with:
                 cosign-release: 'v2.4.0'
 
