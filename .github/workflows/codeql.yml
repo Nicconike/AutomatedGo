@@ -24,7 +24,7 @@ jobs:
             contents: read
         steps:
           - name: Checkout Repo
-            uses: actions/checkout@v4
+            uses: actions/checkout@v5
 
           - name: Initialize CodeQL
             uses: github/codeql-action/init@v3
@@ -43,7 +43,7 @@ jobs:
         needs: codeql
         steps:
           - name: Checkout Repo
-            uses: actions/checkout@v4
+            uses: actions/checkout@v5
 
           - name: Setup Go
             uses: actions/setup-go@v5
